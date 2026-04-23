@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import bcrypt from 'bcryptjs';
-import sequelize from "../lib/db.js";
+import {sequelize} from "../lib/db.js";
 
 
 // class User extends Model {

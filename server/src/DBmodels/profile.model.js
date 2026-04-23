@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { STRING } from "sequelize";
 
 const profileScehma = new mongoose.Schema({
-  user :{
+  accountId :{
     //The Foreign Key from PostgreSQL User.id
     type:String,//  Linked to User UUID
     required: true,
@@ -60,7 +60,7 @@ const profileScehma = new mongoose.Schema({
     deafult: 'bronze',
   },
   socialLinks: {
-    website: STRING,
+    website: String,
     twitter: String,
     portfolio: String,
   },
