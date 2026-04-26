@@ -11,5 +11,8 @@ export const ENV = {
   PG_NAME: process.env.PG_NAME,
   PG_PASSWORD: process.env.PG_PASSWORD,
   PG_PORT: process.env.PG_PORT,
+  CLOUDIANRY_CLOUD_NAME: process.env.CLOUDIANRY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
 }

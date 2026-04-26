@@ -10,7 +10,7 @@ const Navbar = () => {
   const {isMenuOpen} = useSelector(state => state.popup);
 
   return (
-    <div className='flex items-center justify-center mx-6 md:mx-10' >
+    <header className='flex items-center justify-center mx-6 md:mx-10' >
 
       <div className='flex items-center justify-between h-14 w-full max-w-6xl '>
       <div className='max-sm:hidden'>
@@ -44,7 +44,7 @@ const Navbar = () => {
       {
         isMenuOpen && <Menu />
       }
-    </div>
+    </header>
   )
 }
 

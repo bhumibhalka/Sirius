@@ -3,6 +3,7 @@ import Navbar from '../../components/UI/Navbar'
 import {Link } from "react-router-dom"
 import ShopTheLook from '../../components/UI/ShopTheLook'
 import TheEssentials from '../../components/UI/TheEssentials'
+import Footer from "../../components/UI/Footer"
 
 const HomePage = () => {
   return (
@@ -55,7 +56,10 @@ const HomePage = () => {
     
 
        <TheEssentials />
-     
+      
+       {/* FOOTER */}
+       <Footer />
+        
         </main>
     
     </div>
