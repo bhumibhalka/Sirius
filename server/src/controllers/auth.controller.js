@@ -1,5 +1,7 @@
 import Profile from "../DBmodels/profile.model.js";
 import { sequelize } from "../lib/db.js";
+import { ENV } from "../lib/ENV.js";
+import { generateToken } from "../lib/token.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import ErrorHandler from "../middlewares/error.middleware.js";
 import User from "../models/user.js";
@@ -34,12 +36,18 @@ export const register = async(req,res,next) => {
 
  await newProfile.save();
 
+ //token generate
+   const token = await generateToken(newUser.id);
+
  //Commit PostgresSQL transaction now that MongoDB is successful
  await t.commit();
 
- //token generate
 
- return res.status(201).json({
+ return res.status(201).cookie('token',token, {
+  httpOnly: true,
+  sameSite: 'strict',
+  secure: ENV.NODE_ENV === "production"
+ }).json({
   success: true,
   token,
   user: newUser,
@@ -47,7 +55,9 @@ export const register = async(req,res,next) => {
  })
 } catch (error) {
   
-  if(t) await t.rollback();
+ if (t && !t.finished) {
+  await t.rollback();
+}
 
   console.log(`Registeration Error:`,error)
 
@@ -64,7 +74,7 @@ export const login = async(req,res,next) => {
   try {
   const user = await User.findOne({where: {email}});
   if(!user || !await user.comparePassword(password)){
-    return next(new ErrorHandler(("Invaild Credentails.",401)))
+    return next(new ErrorHandler("Invaild Credentails.",401))
   }
 
   const profile = await Profile.findOne({accountId: user.id})
@@ -76,9 +86,15 @@ export const login = async(req,res,next) => {
 
 
   //dual token
+
+  const token = await generateToken(user.id);
   //redis
 
-  return res.status(200).json({
+  return res.status(200).cookie('token', token, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: ENV.NODE_ENV === "production"
+  }).json({
     success: true,
     message: 'User logged in successfully',
     user,

@@ -97,4 +97,15 @@ User.init({
   }
  });
 
+ User.prototype.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+User.prototype.toJSON = function () {
+  const values = { ...this.get() };
+  delete values.password;
+  delete values.mfaSecret;
+  return values;
+};
+
  export default User;

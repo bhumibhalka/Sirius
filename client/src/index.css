@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+
+
+.input-black {
+   @apply w-full border rounded focus:outline-none px-2 py-1 bg-black shadow-2xl
+  }
+
+.input {
+   @apply w-full border rounded focus:outline-none px-2 py-1 
+  }
+
+.label {
+  @apply block text-xs text-slate-400
+}
+
+.btn {
+  @apply w-full text-center bg-gray-300 text-black text-lg rounded-lg py-1 hover:cursor-pointer hover:scale-105 disabled:cursor-not-allowed hover:bg-gray-400 transition-all duration-300 font-semibold shadow-2xl
+}

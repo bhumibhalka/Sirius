@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const login = createAsyncThunk("login", async(data, thunkAPI)=>{
   try {
-    const res = await axiosInstance.post("/auth/login", {data});
+    const res = await axiosInstance.post("/auth/login", data);
     toast.success(res?.data?.message || "User logged in successfully");
     return res?.data;
   } catch (error) {
@@ -16,7 +16,7 @@ export const login = createAsyncThunk("login", async(data, thunkAPI)=>{
 
 export const register = createAsyncThunk("register", async(data, thunkAPI)=> {
   try {
-    const res = await axiosInstance.post("/auth.register", {data})
+    const res = await axiosInstance.post("/auth/register", data)
     toast.success(res?.data?.message || "User registered successfully")
     return res?.data;
   } catch (error) {
@@ -31,6 +31,7 @@ const authSlice = createSlice({
     loading: false,
     user: null ,
     userProfile: null,
+    isAuthenticated: true,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -60,4 +61,4 @@ const authSlice = createSlice({
   }
 })
 
-export default authSlice;
+export default authSlice.reducer;

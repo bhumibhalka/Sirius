@@ -1,6 +1,6 @@
 module.exports={
   development: {
-    username: root,
+    username: postgres,
     password: 857249,
     database: Sirius,
     host: localhost,
@@ -13,7 +13,7 @@ module.exports={
     }
   },
   test: {
-    username: root,
+    username: postgres,
     password: null,
     database: database_test,
     host: localhost,
@@ -21,12 +21,12 @@ module.exports={
     dialectOptions: {
       ssl: {
         // require: true,
-        rejectUnauthorized: false,
+        // rejectUnauthorized: false,
       }
     }
   },
   production: {
-    username: root,
+    username: postgres,
     password: null,
     database: database_production,
     host: localhost,
@@ -34,7 +34,7 @@ module.exports={
     dialectOptions: {
       ssl: {
         // require: true,
-        rejectUnauthorized: false,
+        // rejectUnauthorized: false,
       }
     }
   }
