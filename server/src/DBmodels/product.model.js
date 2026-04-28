@@ -1,10 +1,11 @@
 import mongoose from 'mongoose'
+import crypto from "crypto";
 
 const productSchema = new mongoose.Schema({
   sellerId:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type:String,
     required: true,
+    index: true,
   },
   title: {
     type:String,
@@ -26,10 +27,12 @@ const productSchema = new mongoose.Schema({
     lowercase: true,
   },
   category:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref:'Category',
+    type:String,
     required: true,
-    index: true,
+    // type: mongoose.Schema.Types.ObjectId,
+    // ref:'Category',
+    // required: true,
+    // index: true,
   },
   media: [{
     type:{ type: String, enum: ['image', 'video'], default: 'image'},
@@ -38,7 +41,7 @@ const productSchema = new mongoose.Schema({
     isPrimary: {type: Boolean, default: false}
   }],
   variants: [{
-    sku: {type: String , unique: true},
+    sku: {type: String , unique: true, sparse: true},
     attributes: {
       color: String,
       size: String,
@@ -66,14 +69,14 @@ const productSchema = new mongoose.Schema({
   //Socia; Prood & Trust Metrics
   metrics: {
     averageRating: {type: Number, default: 0},
-    reviewCount: {type:Number, deafult: 0},
-    totalSold: {type:Number, deafult: 0}
+    reviewCount: {type:Number, default: 0},
+    totalSold: {type:Number, default: 0}
   },
   status: {
     type:String,
     enum: ['draft', 'active', 'out_of_stock', 'archived'],
     default: 'draft',
-  }
+  },
 },{timestamps: true,
   toJSON: {virtuals: true},
 })
@@ -82,12 +85,47 @@ productSchema.index({title: 'text'})
 productSchema.index({description: 'text'})
 productSchema.index({createdAt: -1})
 
-productSchema.pre('save', function() {
- if(this.isModified('name')){
-  this.slug = this.name.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
- }
- next();
-})
+// productSchema.pre('save', function () {
+//   if (this.isModified('title')) {
+//     this.slug = this.title
+//       .toLowerCase()
+//       .replace(/[^\w ]+/g, '')
+//       .replace(/ +/g, '-');
+//   }
+// });
+
+
+
+
+productSchema.pre("save", async function () {  // ✅ No `next` parameter
+  // SLUG
+  if (this.isModified("title")) {
+    let baseSlug = this.title
+      .toLowerCase()
+      .replace(/[^\w ]+/g, "")
+      .replace(/ +/g, "-");
+
+    let slug = baseSlug;
+    let count = 1;
+
+    while (await mongoose.models.Product.findOne({ slug })) {
+      slug = `${baseSlug}-${count++}`;
+    }
+
+    this.slug = slug;
+  }
+
+  // SKU
+  this.variants.forEach((variant) => {
+    if (!variant.sku) {
+      variant.sku = `SKU-${crypto.randomBytes(4).toString("hex")}`;
+    }
+  });
+
+  // ✅ No next() call needed — async hooks resolve via the returned promise
+});
+
+
 
 const Product = mongoose.model("Product", productSchema);
 export default Product

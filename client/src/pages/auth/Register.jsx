@@ -14,6 +14,7 @@ const Register = () => {
     email: "",
     password: "",
     displayName: '',
+    role: ""
   });
 
   const handleSubmit = (e) => {
@@ -61,6 +62,19 @@ const Register = () => {
             onChange={(e)=> setFormData({...formData, displayName: e.target.value})}
             required
             />
+          </div>
+
+           <div className='space-y-2'>
+           <label className='label'>Role <sup>*</sup></label>
+            <select
+            className='input text-sm'
+            value={formData.role}
+            onChange={(e) => setFormData({...formData, role: e.target.value})}
+            >
+              <option value="">Select Role</option>
+              <option value="user">User</option>
+              <option value="seller">Seller</option>
+            </select>
           </div>
 
 
