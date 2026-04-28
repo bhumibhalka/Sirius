@@ -31,7 +31,7 @@ const authSlice = createSlice({
     loading: false,
     user: null ,
     userProfile: null,
-    isAuthenticated: true,
+    isAuthenticated: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -43,6 +43,7 @@ const authSlice = createSlice({
     state.loading = false;
     state.user = action.payload.user;
     state.userProfile = action.payload.profile;
+    state.isAuthenticated = true; 
    })
    .addCase(login.rejected, (state)=> {
     state.loading = false;

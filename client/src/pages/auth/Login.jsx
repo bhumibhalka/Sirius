@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import {Link, useNavigate} from "react-router-dom"
 import { login } from '../../store/slices/auth.slice';
@@ -17,6 +17,12 @@ const Login = () => {
     e.preventDefault()
      dispatch(login(formData))
   }
+
+  useEffect(() => {
+  if (user) {
+    navigate("/user"); // or based on role
+  }
+}, [user]);
 
   return (
     <div className='h-screen flex items-center justify-center bg-black/50 text-white px-8 '  >

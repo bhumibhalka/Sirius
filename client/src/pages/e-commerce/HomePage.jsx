@@ -10,7 +10,7 @@ const HomePage = () => {
     <div >
 
 
-        <Navbar className='shadow' />
+        {/* <Navbar className='shadow' /> */}
 
         <main className=''>
 
