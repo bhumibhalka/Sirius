@@ -134,7 +134,11 @@ export const deleteProduct = asyncHandler(async(req,res,next) => {
 
 export const getProducts = asyncHandler(async(req,res,next) => {
 
-  const products = await Product.find().sort({createdAt: 1}).lean()
+  const {category} = req.query;
+
+  const filter =  category ? {category} : {}  
+
+  const products = await Product.find(filter).sort({createdAt: 1})
   //user can only read product data not modify it or chnage it interact with it
 
   res.status(200).json({
