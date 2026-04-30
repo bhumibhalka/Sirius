@@ -14,6 +14,9 @@ import { getUser } from './store/slices/auth.slice'
 import Products from './pages/e-commerce/user/Products'
 import Cart from './pages/e-commerce/user/Cart'
 import Product from './pages/e-commerce/user/Product'
+import SocialLayout from './components/layout/SocialLayout'
+import Home from './pages/socialmedia/Home'
+
 
 const getHomeRoute = (role) => {
 switch (role) {
@@ -95,7 +98,7 @@ const App = () => {
         <Route index element={<AdminDashboard />}/>
       </Route>
 
-        {/* user */}
+        {/* user e-commerce */}
       <Route 
       path="/user"
       element={
@@ -123,6 +126,14 @@ const App = () => {
         <Route index element={<SellerDashboard />} />
         <Route path='manage-products' element={<ManageProducts />}/>
       </Route>
+    
+
+     <Route
+     path='/social'
+     element={<SocialLayout />}
+     >
+     <Route index element={<Home />} />
+     </Route>
 
   {/* <Route path='/user' element={<HomePage />} /> */}
 

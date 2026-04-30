@@ -10,6 +10,10 @@
    @apply w-full border rounded focus:outline-none px-2 py-1 
   }
 
+.input-rounded {
+   @apply w-full border rounded-full focus:outline-none px-8 py-1 border-slate-600 bg-slate-700 
+  }
+
 .label {
   @apply block text-xs text-slate-400
 }
