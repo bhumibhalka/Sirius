@@ -5,6 +5,7 @@ const popupSlice = createSlice({
   initialState: {
     isMenuOpen: false,
     isAddProductModalOpen: false,
+    isEditModalOpen: false,
   },
   reducers: {
     toggleMenu: (state) => {
@@ -12,10 +13,13 @@ const popupSlice = createSlice({
     },
     toggleAddProduct: (state) => {
       state.isAddProductModalOpen = !state.isAddProductModalOpen;
+    },
+    toggleEditModal: (state) => {
+      state.isEditModalOpen = !state.isEditModalOpen;
     }
   }
 })
 
-export const {toggleMenu, toggleAddProduct} = popupSlice.actions;
+export const {toggleMenu, toggleAddProduct, toggleEditModal} = popupSlice.actions;
 
 export default popupSlice.reducer;

@@ -10,6 +10,10 @@ import EcommerceLayout from './components/layout/EcommerceLayout'
 import SellerDashboard from './pages/e-commerce/seller/SellerDashboard'
 import ManageProducts from './pages/e-commerce/seller/ManageProducts'
 import { fetchUserProducts } from './store/slices/product.slice'
+import { getUser } from './store/slices/auth.slice'
+import Products from './pages/e-commerce/user/Products'
+import Cart from './pages/e-commerce/user/Cart'
+import Product from './pages/e-commerce/user/Product'
 
 const getHomeRoute = (role) => {
 switch (role) {
@@ -52,6 +56,10 @@ const App = () => {
       return children;
     }
     
+  useEffect(()=> {
+    dispatch(getUser())
+  },[])
+
     useEffect(()=>{
       if(user?.role === 'seller'){
         dispatch(fetchUserProducts())
@@ -97,6 +105,9 @@ const App = () => {
       }
       >
       <Route index element={<HomePage />} />
+      <Route path='products' element={<Products />} />
+      <Route path='product/:id' element={<Product />} />
+      <Route path='cart' element={<Cart/>} />
       </Route>
 
 

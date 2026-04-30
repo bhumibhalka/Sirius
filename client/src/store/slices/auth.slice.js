@@ -25,6 +25,28 @@ export const register = createAsyncThunk("register", async(data, thunkAPI)=> {
   }
 })
 
+export const logout = createAsyncThunk('logout', async(_, thunkAPI) => {
+  try {
+    const res = await axiosInstance.get('/auth/logout')
+    toast.success(res?.data?.message || 'User loggout out successfully');
+  } catch (error) {
+     toast.error(error?.response?.data?.message || 'Failed to logout users');
+     return thunkAPI.rejectWithValue(error?.response?.data?.message)
+  }
+})
+
+export const getUser = createAsyncThunk('getUser', async(_, thunkAPI)=> {
+  try {
+    const res = await axiosInstance.get('/auth/me');
+    // toast.success(res?.data?.message || 'User fetched successfully')
+    return res?.data?.user;
+  } catch (error) {
+    // toast.error(error?.response?.data?.message)
+    console.log(error?.response?.data?.message);
+    return thunkAPI.rejectWithValue(error?.response?.data?.message)
+  }
+})
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -58,6 +80,26 @@ const authSlice = createSlice({
    })
    .addCase(register.rejected,(state)=> {
     state.loading = false
+   })
+   .addCase(logout.pending, (state)=> {
+    state.loading = true;
+   })
+   .addCase(logout.fulfilled, (state, action) => {
+    state.loading = false;
+    state.user = null;
+   })
+   .addCase(logout.rejected, (state) => {
+    state.loading = false;
+   })
+   .addCase(getUser.pending, (state) => {
+    state.loading = true;
+   })
+   .addCase(getUser.fulfilled, (state, action)=> {
+    state.loading = false;
+    state.user = action.payload;
+   })
+   .addCase(getUser.rejected, (state)=> {
+    state.loading = false;
    })
   }
 })

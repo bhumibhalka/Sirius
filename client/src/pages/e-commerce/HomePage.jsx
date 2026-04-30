@@ -20,8 +20,8 @@ const HomePage = () => {
             <p className="text-xs tracking-widest">ELEGANCE REDEFINED</p>
             <h1 className="text-3xl md:text-6xl font-semibold tracking-wide mt-3 mb-5 md:mb-8">The Art of Quite Luxury</h1>
 
-            <button className="border py-3 px-10 text-xs ">
-            <Link to="/user/products/collection" >EXPLORE COLLECTION</Link>
+            <button className="border py-3 px-10 text-xs hover:underline ">
+            <Link to="/user/products" >EXPLORE COLLECTION</Link>
             </button>
 
            </div>

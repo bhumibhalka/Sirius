@@ -3,10 +3,12 @@ import { MenuIcon, Search, ShoppingBag, ShoppingCart} from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleMenu } from '../../store/slices/popup.slice';
 import Menu from './Menu';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {isMenuOpen} = useSelector(state => state.popup);
 
   return (
@@ -15,8 +17,8 @@ const Navbar = () => {
       <div className='flex items-center justify-between h-14 w-full max-w-6xl '>
       <div className='max-sm:hidden'>
           <ul className='flex justify-evenly gap-5 text-sm'>
-            <li><a href="/collection">Collection</a></li>
-            <li><a href="/men">Mens</a></li>
+            <li><a href="/user/products">Collection</a></li>
+            <li><a href="/user/products/men">Mens</a></li>
             <li><a href="/women">Women</a></li>
             <li><a href="/statement">Statement</a></li>
           </ul>
@@ -25,7 +27,9 @@ const Navbar = () => {
       <div className='sm:hidden' onClick={()=> dispatch(toggleMenu())}><MenuIcon /></div>
       
 
-      <div className='flex items-center justify-center'>
+      <div className='flex items-center justify-center' 
+      onClick={()=> navigate('/')}
+      >
         <h3 className='tracking-widest font-bold text-lg'>LUMIÈRE</h3>
       </div>
 
@@ -35,7 +39,7 @@ const Navbar = () => {
           <input type="text" />
          <Search />
         </div>
-        <ShoppingBag />
+        <ShoppingBag onClick={()=> navigate('/user/cart')} />
       </div>
 
       </div>
