@@ -5,6 +5,8 @@ import fileUpload from "express-fileupload";
 import userRoutes from "./routes/auth.route.js";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
+import paymentRoutes from "./routes/payment.route.js";
+import postRoutes from "./routes/social-media-routes/post.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 
@@ -26,6 +28,8 @@ app.use(fileUpload({
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/cart", cartRoutes);
+app.use('/api/v1/payment', paymentRoutes);
+app.use("/api/v1/post", postRoutes);
 
 app.use(errorMiddleware);
 

@@ -1,0 +1,102 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axiosInstance from "../../../utils/axios";
+import { toast } from "react-toastify";
+
+export const createPost = createAsyncThunk("createPost", async(data,thunkAPI) => {
+  try {
+    const res = await axiosInstance.post('/post/create-post', data);
+    toast.success(res?.data?.message || 'Post created successfully');
+    return res?.data?.post;
+  } catch (error) {
+     console.log("ERROR FULL:", error); // 👈 IMPORTANT
+    console.log("ERROR DATA:", error?.response?.data);
+    toast.error(error?.response?.data?.message || 'Failed to create post')
+    return thunkAPI.rejectWithValue(error?.response?.data?.message);
+  }
+})
+
+export const fetchHomeFeed = createAsyncThunk("post/all-posts", async({cursor}, thunkAPI) => {
+  try {
+    const url = cursor
+        ? `/post/all-posts?cursor=${cursor}`
+        : `/post/all-posts`;
+    const res = await axiosInstance.get(url);
+    // console.log(res?.data?.posts);
+    return res?.data;
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Failed to fetch posts')
+    return thunkAPI.rejectWithValue(error?.response?.data?.message)
+  }
+})
+
+const postSlice = createSlice({
+  name: 'post',
+  initialState: {
+    loading : false,
+    posts: [],
+    nextCursor: null,
+    error: null,
+    isRefreshing: false,
+    status: 'idle',
+  },
+  reducers: {
+    // Optimistic UI Update: Heart turns red immediately when clicked
+    toggleLikeOptimistic: (state, action) => {
+      const {postId } = action.payload;
+      const post = state.posts.find(p => p._id === postId);
+      if(post){
+        post.likedByMe = !post.likedByMe;
+        post.stats.likeCount += post.likedByMe ? 1 : -1 ;
+      }
+    },
+    // Optimistic UI Update: Bookmark toggle
+    toggleSaveOpmtimistic: (state, action) => {
+      const { postId } = action.payload;
+      const post = state.posts.find(p => p._id === postId);
+      if(post){
+        post.saveByMe = !post.saveByMe;
+      }
+    },
+    clearFeed: (state) => {
+      state.posts = [];
+      state.nextCursor = null;
+    }
+
+  },
+  extraReducers: (builder) => {
+   builder
+   .addCase(createPost.pending, (state)=> {
+    state.loading = true;
+   })
+   .addCase(createPost.fulfilled, (state, action)=> {
+    state.loading = false;
+    state.posts.unshift(action.payload); //newest on top
+   })
+   .addCase(createPost.rejected, (state)=> {
+    state.loading = false;
+   })
+   .addCase(fetchHomeFeed.pending, (state)=> {
+    state.loading = 'loading';
+   })
+   .addCase(fetchHomeFeed.fulfilled, (state, action) => {
+    state.loading = 'succeeded';
+      const newPosts = action.payload.data; // ✅ ADDED
+
+  const existingIds = new Set(state.posts.map(p => p._id)); // ✅ ADDED
+
+  const filteredPosts = newPosts.filter(
+    p => !existingIds.has(p._id)
+  ); 
+    state.posts = [...state.posts, ...filteredPosts]; 
+    state.nextCursor = action.payload.nextCursor;
+   })
+   .addCase(fetchHomeFeed.rejected, (state, action) => {
+    state.loading = 'false';
+    state.error = action.payload?.message;
+   })
+  }
+})
+
+export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed} = postSlice.actions
+
+export default postSlice.reducer
