@@ -1,9 +1,10 @@
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { toggleAddProduct } from '../../../store/slices/popup.slice';
+import { toggleAddProduct, toggleEditModal } from '../../../store/slices/popup.slice';
 import AddProduct from '../../../components/popups/AddProduct';
-import { fetchUserProducts } from '../../../store/slices/product.slice';
+import { deleteProduct, fetchUserProducts } from '../../../store/slices/product.slice';
+import EditModal from '../../../components/popups/EditModal';
 
 
 const ManageProducts = () => {
@@ -11,13 +12,24 @@ const ManageProducts = () => {
   const dispatch = useDispatch();
   const {isAddProductModalOpen} = useSelector(state => state.popup);
   const {products} = useSelector(state => state.product)
-   console.log(products);
+  const {isEditModalOpen} = useSelector(state => state.popup);
+  //  console.log(products);
 
-   const [searchQuery, setSearchQuery] = useState('')
-   const [filteredCategory, setfilteredCategory] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredCategory, setfilteredCategory] = useState('all')
+  const [selectedProduct, setSelectedProduct]= useState(null);
 
+   
   const openAddProduct = () => {
     dispatch(toggleAddProduct());
+  }
+
+  const openEditModal = () => {
+    dispatch(toggleEditModal())
+  }
+
+  const handleDelete = (id) => {
+    dispatch(deleteProduct(id))
   }
 
   const filteredProducts = products?.filter((product)=> {
@@ -201,11 +213,18 @@ const ManageProducts = () => {
 
             {/* ACTIONS */}
             <td className="px-4 py-3 flex gap-3">
-              <button className="text-blue-500 hover:scale-110 transition">
+              <button
+              onClick={()=> {
+                setSelectedProduct(product._id);
+                openEditModal();
+              }}
+              className="text-blue-500 hover:scale-110 transition">
                 <Pencil size={18} />
               </button>
 
-              <button className="text-red-500 hover:scale-110 transition">
+              <button
+              onClick={() => handleDelete(product._id)}
+              className="text-red-500 hover:scale-110 transition">
                 <Trash2 size={18} />
               </button>
             </td>
@@ -228,6 +247,11 @@ const ManageProducts = () => {
     {/*ADD PRODUCT */}
     {
       isAddProductModalOpen && <AddProduct />
+    }
+
+    {/* EDIT PRODUCT */}
+    {
+      isEditModalOpen && <EditModal selectedProduct={selectedProduct} />
     }
     </div>
   )

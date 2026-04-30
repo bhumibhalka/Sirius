@@ -1,5 +1,5 @@
 import express from 'express'
-import { addProduct, fetchSellerProducts} from '../controllers/product.controller.js';
+import { addProduct, deleteProduct, editProduct, fetchSellerProducts, getProduct, getProducts} from '../controllers/product.controller.js';
 import { isAuthenticated, isAuthorized } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
@@ -16,6 +16,32 @@ router.get(
   isAuthenticated,
   isAuthorized('seller'),
   fetchSellerProducts
+)
+
+router.put(
+  '/update-product',
+  isAuthenticated,
+  isAuthorized('seller'),
+  editProduct
+)
+
+router.delete(
+  '/delete/:id',
+  isAuthenticated,
+  isAuthorized('seller'),
+  deleteProduct
+)
+
+router.get(
+  '/all-products',
+  isAuthenticated,
+  getProducts
+)
+
+router.get(
+  '/:id',
+  isAuthenticated,
+  getProduct
 )
 
 // router.post(

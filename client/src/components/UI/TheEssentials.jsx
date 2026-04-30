@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const TheEssentials = () => {
   return (
@@ -9,7 +10,7 @@ const TheEssentials = () => {
     {/* HEADER */}
      <div className='flex items-center justify-between'>
       <h3 className='text-2xl font-semibold'>THE ESSENTIALS</h3>
-      <button>View All</button>
+      <Link to={'/user/products'}>View All</Link>
      </div>
 
      <div className='grid grid-cols-1 md:grid-cols-4 gap-3  mt-8 '>

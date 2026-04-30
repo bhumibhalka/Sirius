@@ -110,3 +110,29 @@ export const login = async(req,res,next) => {
  
 
 }
+
+export const logout = asyncHandler(async(req, res, next) => {
+  return res.status(200).cookie('token', null, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: ENV.NODE_ENV === "production"
+  })
+  .json({
+    success: true,
+    message: 'User logged out successfully',
+  })
+})
+
+export const getUser = asyncHandler(async(req,res,next)=> {
+  const userId = req.user.id;
+
+  const user = await User.findByPk(userId);
+  if(!user){
+    return next (new ErrorHandler('User not found',404))
+  }
+
+  res.status(200).json({
+    success: true,
+     user
+  })
+})
