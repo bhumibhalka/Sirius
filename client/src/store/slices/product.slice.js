@@ -57,9 +57,9 @@ export const deleteProduct = createAsyncThunk("deleteProduct", async(id,thunkAPI
   }
 })
 
-export const fetchProducts = createAsyncThunk("fetchProducts", async(_, thunkAPI) => {
+export const fetchProducts = createAsyncThunk("fetchProducts", async(category, thunkAPI) => {
    try {
-    const res = await axiosInstance.get('/product/all-products');
+    const res = await axiosInstance.get(`/product/all-products?category=${category}`);
     return res?.data?.products;
    } catch (error) {
     toast.error(error?.response?.data?.message || 'Failed to fetch products')

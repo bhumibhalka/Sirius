@@ -17,10 +17,10 @@ const Navbar = () => {
       <div className='flex items-center justify-between h-14 w-full max-w-6xl '>
       <div className='max-sm:hidden'>
           <ul className='flex justify-evenly gap-5 text-sm'>
-            <li><a href="/user/products">Collection</a></li>
-            <li><a href="/user/products/men">Mens</a></li>
-            <li><a href="/women">Women</a></li>
-            <li><a href="/statement">Statement</a></li>
+            <li onClick={()=> navigate('/user/products')}>Collection</li>
+            <li onClick={()=> navigate("/user/products?category=Men")}>Mens</li>
+            <li onClick={()=> navigate("/user/products?category=Women")}>Women</li>
+            <li onClick={()=> navigate("/user/products?category=Statement")}>Statement</li>
           </ul>
       </div>
 

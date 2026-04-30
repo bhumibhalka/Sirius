@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {  fetchProducts } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const Products = () => {
 
@@ -12,21 +12,27 @@ const Products = () => {
   const {user} = useSelector(state => state.auth);
   const {products} = useSelector(state => state.product)
   console.log(products);
+  
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const category = queryParams.get('category')
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCategory, setfilteredCategory] = useState('all');
-  const [selectedVariants, setSelectedVariants] = useState({});
-  const [loadingMap, setLoadingMap] = useState({})
+  const [filteredCategory, setfilteredCategory] = useState(category || 'all');
+  // const [selectedVariants, setSelectedVariants] = useState({});
+  // const [loadingMap, setLoadingMap] = useState({})
 
   const filteredProducts = products?.filter((product)=> {
     const matchesSearch = 
     (product.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (product.description || '').toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesFilter = filteredCategory === 'all' || product.category === filteredCategory;
+    // const matchesFilter = filteredCategory === 'all' || product.category === filteredCategory;
 
-    return matchesFilter && matchesSearch;
+    return matchesSearch;
   })
+
+  // const product = filteredProducts.category = category || filteredProducts
 
   const handleAddToCart = async(product) => {
    dispatch(addToCart({productId: product._id, quantity: 1}))
@@ -34,9 +40,9 @@ const Products = () => {
 
   useEffect(()=> {
     if(user?.role === 'user'){
-      dispatch(fetchProducts())
+      dispatch(fetchProducts(filteredCategory === 'all' ? '' : filteredCategory ))
     }
-  },[])
+  },[filteredCategory, dispatch,  user?.role])
 
   return (
     <div className='bg-black text-white min-h-screen overflow-x-auto p-4 space-y-4 '>
@@ -67,7 +73,16 @@ const Products = () => {
       <select 
       className='border rounded focus:outline-none px-2 py-1 md:w-26'
       value={filteredCategory}
-      onChange={(e)=> setfilteredCategory(e.target.value)}
+      onChange={(e)=>{
+        const value = e.target.value
+         setfilteredCategory(value)
+         
+         navigate(
+          value === 'all'
+          ? '/user/products'
+          :`/user/products?category=${value}`
+         )
+      }}
       >
         <option value="all">All</option>
         <option value="Limited Edition">Limited Edition</option>
