@@ -1,4 +1,4 @@
-import { HomeIcon, MessageCircle, Plus, Search, User2Icon, UserIcon, Video, VideoIcon } from 'lucide-react'
+import { Bookmark, EllipsisVertical, Heart, HomeIcon, MessageCircle, Plus, Search, Share, User2Icon, UserIcon, Video, VideoIcon } from 'lucide-react'
 import React from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -99,8 +99,8 @@ console.log(posts);
           </Link>
           </div>
 
-          <div className=' hover:bg-slate-700 rounded-lg  '> 
-          <Link className='flex gap-2 p-2 '>
+          <div className=' hover:bg-slate-700 rounded-lg '> 
+          <Link className='flex gap-2 p-2 ' to={'/social/profile'}>
             < User2Icon />
           <p>Profile</p>
           </Link>
@@ -111,21 +111,82 @@ console.log(posts);
      </header>
 
       {/* posts */}
-     <div>
+     <div className='space-y-2'>
        {
         posts && posts.length > 0 ? (
         posts.map((post)=> (
           <div
           key={post._id}
+          className='p-4 space-y-4'
           >
             {/* head */}
-            <div>
+            <div className='flex  items-center justify-between '>
               <div className='flex items-center gap-2'>
                 <div className='bg-white inline-flex rounded-full'>
                   <img src={post?.author?.avatar  ||<UserIcon /> } alt="img" className='object-cover size-8' />
                 </div>
                 <h3>{post?.author?.displayName}</h3>
               </div>
+
+              {/* buttons */}
+              <div className='flex items-center gap-2'>
+                <button
+                className='bg-slate-600 px-3 font-semibold py-1 rounded-lg'
+                >
+                  Follow
+                </button>
+                <EllipsisVertical />
+              </div>
+            </div>
+
+            {/* content */}
+
+            {post?.media?.[0]?.type === 'images' && (
+              <div className=' bg-white '>
+              <img src={post?.media?.[0]?.url} alt="image" className='object-contain h-[500px] w-[450px] ' />
+            </div>
+            )}
+
+            {post?.media?.[0]?.type === 'videos' && (
+              <div className=' bg-white '>
+              <video src={post?.media?.[0]?.url} alt="image" className='h-[500px] w-[450px] '
+              controls
+              />
+            </div>
+            )}
+            
+            {/* bottom */}
+            <div className='space-y-2'>
+              {/* buttons */}
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                {/* likes */}
+                <button className='flex items-center gap-1'>
+                  <Heart />
+                  <p>{post?.stats?.likeCount}</p>
+                </button>
+                {/* comments */}
+                <button className='flex items-center gap-1'>
+                  <MessageCircle />
+                  <p>{post?.stats?.commentCount}</p>
+                </button>
+                {/* share */}
+                <button className='flex items-center gap-1'>
+                  <Share />
+                  <p>{post?.stats?.shareCount}</p>
+                </button>
+              </div>
+
+              <button>
+                <Bookmark />
+              </button>
+            </div>
+            
+            {/* text content */}
+            <div className='flex items-center gap-1'>
+              <h3 className='font-semibold'>{post?.author?.displayName}</h3>
+              <p>{post?.caption}</p>
+            </div>
             </div>
           </div>
         ))
