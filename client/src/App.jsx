@@ -16,6 +16,7 @@ import Cart from './pages/e-commerce/user/Cart'
 import Product from './pages/e-commerce/user/Product'
 import SocialLayout from './components/layout/SocialLayout'
 import Home from './pages/socialmedia/Home'
+import Profile from './pages/socialmedia/Profile'
 
 
 const getHomeRoute = (role) => {
@@ -133,6 +134,7 @@ const App = () => {
      element={<SocialLayout />}
      >
      <Route index element={<Home />} />
+     <Route path='profile' element={<Profile />} />
      </Route>
 
   {/* <Route path='/user' element={<HomePage />} /> */}
