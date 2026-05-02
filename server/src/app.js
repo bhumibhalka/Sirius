@@ -7,6 +7,7 @@ import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import postRoutes from "./routes/social-media-routes/post.route.js";
+import profileRoutes from "./routes/social-media-routes/profile.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 
@@ -30,6 +31,8 @@ app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use('/api/v1/payment', paymentRoutes);
 app.use("/api/v1/post", postRoutes);
+app.use("/api/v1/profile", profileRoutes);
+
 
 app.use(errorMiddleware);
 

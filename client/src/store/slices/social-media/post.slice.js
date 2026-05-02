@@ -29,6 +29,42 @@ export const fetchHomeFeed = createAsyncThunk("post/all-posts", async({cursor}, 
   }
 })
 
+export const getUserPosts = createAsyncThunk("post/user/posts", async(cursor, thunkAPI) => {
+  try {
+
+    const url = cursor ? 
+    `/post/user/posts?cursor=${cursor}`
+    : '/post/user/posts'
+    const res = await axiosInstance.get(url);
+    return res?.data;
+  } catch (error) {
+     toast.error(error?.response?.data?.message || 'Failed to fetch user posts');
+     return thunkAPI.rejectWithValue(error?.response?.data?.message)
+  }
+})
+
+// export const getPosts = createAsyncThunk("post/all-posts", async(cursor, thunkAPI) => {
+//   try {
+//     const res = await axiosInstance.get(`/post/all-posts?cursor=${cursor || ''}`);
+//     return res?.data;
+//   } catch (error) {
+//     toast.error(error?.response?.data?.message || 'Failed to fetch posts')
+//     return thunkAPI.rejectWithValue(error?.response?.data?.message);
+//   }
+// })
+
+export const fetchAllPosts = createAsyncThunk('post/all/posts', async(cursor, thunkAPI)=>{
+  try {
+    const res = await axiosInstance.get(`/post/all-posts?cursor=${cursor || ''}`);
+    return res?.data;
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Failed to fetch posts')
+    return thunkAPI.rejectWithValue(error?.response?.data?.message)
+  }
+})
+
+
+
 const postSlice = createSlice({
   name: 'post',
   initialState: {
@@ -50,7 +86,7 @@ const postSlice = createSlice({
       }
     },
     // Optimistic UI Update: Bookmark toggle
-    toggleSaveOpmtimistic: (state, action) => {
+    toggleSaveOptimistic: (state, action) => {
       const { postId } = action.payload;
       const post = state.posts.find(p => p._id === postId);
       if(post){
@@ -59,6 +95,10 @@ const postSlice = createSlice({
     },
     clearFeed: (state) => {
       state.posts = [];
+      state.nextCursor = null;
+    },
+    resetProfilePosts: (state) => {
+      state.posts = [],
       state.nextCursor = null;
     }
 
@@ -91,12 +131,46 @@ const postSlice = createSlice({
     state.nextCursor = action.payload.nextCursor;
    })
    .addCase(fetchHomeFeed.rejected, (state, action) => {
-    state.loading = 'false';
+    state.loading = false;
     state.error = action.payload?.message;
+   })
+   .addCase(getUserPosts.pending, (state) => {
+    state.loading = true;
+   })
+   .addCase(getUserPosts.fulfilled, (state, action) => {
+    state.loading = false;
+    state.posts = [...state.posts, ...action.payload.data];
+    state.nextCursor = action.payload.nextCursor;
+   })
+   .addCase(getUserPosts.rejected, (state) => {
+    state.loading = false;
+   })
+  //  .addCase(getPosts.pending, (state) => {
+  //   state.loading = true;
+  //  })
+  //  .addCase(getPosts.fulfilled, (state, action) => {
+  //   state.loading = false;
+  //   state.posts = [...state.posts, ...action.payload.data];
+  //   state.nextCursor = action.payload?.nextCursor;
+  //  })
+  //  .addCase(getPosts.rejected, (state) => {
+  //   state.loading = false;
+  //  })
+   .addCase(fetchAllPosts.pending , (state)=> {
+    state.loading = true;
+   })
+   .addCase(fetchAllPosts.fulfilled, (state, action)=> {
+    state.loading = false;
+    // state.posts = [...state.posts, ...action.payload.data];
+    state.posts = action.payload?.data;
+    state.nextCursor = action.payload?.nextCursor;
+   })
+   .addCase(fetchAllPosts.rejected, (state)=> {
+    state.loading = false;
    })
   }
 })
 
-export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed} = postSlice.actions
+export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed, resetProfilePosts} = postSlice.actions
 
 export default postSlice.reducer
