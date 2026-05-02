@@ -8,15 +8,19 @@ import AddPost from '../../components/popups/AddPost'
 import { useEffect } from 'react'
 import { clearFeed, fetchHomeFeed } from '../../store/slices/social-media/post.slice'
 import { useCallback } from 'react'
+import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice'
 
 const Home = () => {
 
   const dispatch = useDispatch();
+  const {user} = useSelector(state => state.auth)
   const {isUploadPostModalOpen} = useSelector(state => state.popup)
   const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
+  const {isFollowing} = useSelector(state => state.profile)
   const [title, setTitle] = useState('');
   const [images, setImages] = useState([])
 console.log(posts);
+console.log("user:",user);
 
   const handleToggleUpload = () => {
     dispatch(toggleUploadPost())
@@ -43,6 +47,12 @@ console.log(posts);
  const bottom =
   e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
     if(bottom) loadMore()
+  }
+
+  const handleFollowClick = (targetUserId) => {
+    // const nextState = !isFollowing
+    // dispatch(optimisticFollowToggle({isFollowing: !isFollowing}))
+    dispatch(toggleFollow(targetUserId))
   }
   
   return (
@@ -86,7 +96,7 @@ console.log(posts);
           </div>
 
           <div className=' hover:bg-slate-700  rounded-lg '> 
-          <Link className='flex gap-2 p-2 '>
+          <Link className='flex gap-2 p-2 ' to={'/social/posts'}>
             <Video />
            <p>Posts</p>
           </Link>
@@ -100,7 +110,7 @@ console.log(posts);
           </div>
 
           <div className=' hover:bg-slate-700 rounded-lg '> 
-          <Link className='flex gap-2 p-2 ' to={'/social/profile'}>
+          <Link className='flex gap-2 p-2 ' to={`/social/profile/${user?.username}`}>
             < User2Icon />
           <p>Profile</p>
           </Link>
@@ -131,7 +141,8 @@ console.log(posts);
               {/* buttons */}
               <div className='flex items-center gap-2'>
                 <button
-                className='bg-slate-600 px-3 font-semibold py-1 rounded-lg'
+                className={`bg-slate-600 px-3 font-semibold py-1 rounded-lg ${isFollowing ? "hidden": "block"} `}
+                onClick={()=> handleFollowClick(post?.authorId)}
                 >
                   Follow
                 </button>
@@ -198,7 +209,7 @@ console.log(posts);
      </div>
 
       {/* message */}
-     <div>
+     <div className='max-sm:hidden'>
 
      </div>
 

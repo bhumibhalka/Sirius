@@ -4,6 +4,7 @@ import popupReducer from "./slices/popup.slice"
 import productReducer from "./slices/product.slice"
 import cartReducers from "./slices/cart.slice"
 import postReducers from "./slices/social-media/post.slice"
+import profileReducers from "./slices/social-media/profile.slice"
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     product: productReducer,
     cart: cartReducers,
     post: postReducers,
+    profile: profileReducers,
   }
 })

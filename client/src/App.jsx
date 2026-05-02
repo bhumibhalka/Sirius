@@ -17,6 +17,7 @@ import Product from './pages/e-commerce/user/Product'
 import SocialLayout from './components/layout/SocialLayout'
 import Home from './pages/socialmedia/Home'
 import Profile from './pages/socialmedia/Profile'
+import Posts from './pages/socialmedia/Posts'
 
 
 const getHomeRoute = (role) => {
@@ -134,7 +135,8 @@ const App = () => {
      element={<SocialLayout />}
      >
      <Route index element={<Home />} />
-     <Route path='profile' element={<Profile />} />
+     <Route path='profile/:username' element={<Profile />} />
+     <Route path='posts' element={<Posts />} />
      </Route>
 
   {/* <Route path='/user' element={<HomePage />} /> */}

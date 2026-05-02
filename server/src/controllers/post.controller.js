@@ -133,3 +133,81 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
   
 })
 
+export const getUserPosts = asyncHandler(async(req,res,next) => {
+  const {cursor , limit = 10} = req.query;
+  const authorId = req.user.id;
+
+  const query = {
+    authorId,
+    isArchived : false
+  };
+   if(cursor){
+    query.createdAt = {$lt : new Date(cursor)}
+   }
+
+   const posts = await Post.find(query)
+   .select('media stats createdAt visibility')
+   .sort({createdAt: -1})
+   .limit(Number(limit))
+   .lean()
+   
+   const nextCursor = posts.length === Number(limit) ? posts[posts.length - 1].createdAt : null;
+
+   res.status(200).json({
+    success: true,
+    count: posts.length,
+    nextCursor,
+    data: posts,
+   })
+   
+})
+
+export const getPosts = asyncHandler(async(req,res,next)=> {
+  const {cursor, limit = 12 } = req.query;
+  const userId = req.user.id;
+
+  const query = {isArchived: false};
+  //  const limitNumber = Number(limit) || 12
+  if(cursor) {
+    query.createdAt = {$lt: new Date(cursor)}
+  }
+
+  const posts = await Post.find(query)
+  .sort({createdAt: -1})
+  .limit(Number(limit))
+  .lean();
+
+  if(!posts.length) {
+    return res.status(200).json({success: true, data: [], nextCursor: null})
+  }
+
+  // 3. Hydrate Data (Parallel Execution)
+  const postIds = posts.map(p => p._id);
+  const authorIds = [...new Set(posts.map((p) => p.authorId))]
+
+  const [profiles, userLikes] = await Promise.all([
+    Profile.find({accountId: {$in : authorIds}}).select('accountId displayName avatar ').lean(),
+
+    Like.find({userId, postId: {$in: postIds}}).select('postId').lean()
+  ])
+
+  // 4. Map everything together for the UI
+  const profileMap = profiles.reduce((acc, p) => ({...acc, [p.accountId] : p}), {})
+  const likedSet = new Set(userLikes.map((l) => l.postId.toString()));
+
+
+  const hydratedPosts = posts.map(post => ({
+    ...post,
+    author: profileMap[post.authorId] || {display: 'Deleted User', avatar: null},
+    likedByMe: likedSet.has(post._id.toString()) 
+  }))
+
+  const nextCursor = posts.length === Number(limit) ? posts[posts.length - 1].createdAt : null;
+
+  res.status(200).json({
+    success: true,
+    nextCursor,
+    data: hydratedPosts
+  })
+
+})

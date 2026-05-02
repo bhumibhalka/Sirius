@@ -70,6 +70,16 @@ const Menu = () => {
             </li>
 
         </ul>
+
+         <div className=''>
+          <button
+          className='flex gap-2 text-center items-center justify-center w-full mt-4 text-lg font-semibold text-white hover:scale-110 transition-all duration-300'
+          onClick={handleLogout}
+          >
+            <LogOut />
+            {loading? "Logging out..." : "Logout"}
+          </button>
+        </div>
       </div>
        )
       }
