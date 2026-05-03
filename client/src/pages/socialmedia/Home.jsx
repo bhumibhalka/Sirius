@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { clearFeed, fetchHomeFeed } from '../../store/slices/social-media/post.slice'
 import { useCallback } from 'react'
 import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice'
+import { fetchUsers } from '../../store/slices/social-media/user.slice'
 
 const Home = () => {
 
@@ -17,8 +18,10 @@ const Home = () => {
   const {isUploadPostModalOpen} = useSelector(state => state.popup)
   const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
   const {isFollowing} = useSelector(state => state.profile)
+  const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
   const [title, setTitle] = useState('');
   const [images, setImages] = useState([])
+  const [search, setSearch] = useState("");
 console.log(posts);
 console.log("user:",user);
 
@@ -54,6 +57,21 @@ console.log("user:",user);
     // dispatch(optimisticFollowToggle({isFollowing: !isFollowing}))
     dispatch(toggleFollow(targetUserId))
   }
+
+  useEffect(()=> {
+    const delay = setTimeout(()=> {
+       dispatch(fetchUsers({search: "", cursor: null }))
+    },400)
+
+    return ()=> clearTimeout(delay);
+  },[dispatch, search])
+
+  const loadMoreUsers = () => {
+    if(userNextCursor){
+      dispatch(fetchUsers({search: "", cursor: userNextCursor}))
+    }
+  }
+
   
   return (
     <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
@@ -67,6 +85,8 @@ console.log("user:",user);
           type="text"
            className='input-rounded' 
            placeholder='...'
+           value={search}
+           onChange={(e)=> setSearch(e.target.value)}
           />
         </div>
 
@@ -208,6 +228,7 @@ console.log("user:",user);
        }
      </div>
 
+     
       {/* message */}
      <div className='max-sm:hidden'>
 

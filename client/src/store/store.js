@@ -5,6 +5,7 @@ import productReducer from "./slices/product.slice"
 import cartReducers from "./slices/cart.slice"
 import postReducers from "./slices/social-media/post.slice"
 import profileReducers from "./slices/social-media/profile.slice"
+import userReducers from "./slices/social-media/user.slice"
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     cart: cartReducers,
     post: postReducers,
     profile: profileReducers,
+    user: userReducers,
   }
 })
