@@ -30,7 +30,6 @@ const profileSlice = createSlice({
     activeProfile: null,
     loading: false,
     error: null,
-    isFollowing :false,
   },
   reducers: {
     // Update relationship status locally if user clicks "Follow"
@@ -62,7 +61,11 @@ const profileSlice = createSlice({
     state.loading = false;
    })
    .addCase(toggleFollow.fulfilled, (state, action)=> {
-    state.isFollowing = action.payload?.isFollowing;
+    if(!state.activeProfile) return;
+
+    state.activeProfile.relationship.isFollowing = action.payload?.isFollowing;
+    
+    // state.activeProfile.stats.followers = action.payloa
    })
    .addCase(toggleFollow.rejected, (state, action) => {
      if(state.activeProfile) {
