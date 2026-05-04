@@ -3,21 +3,22 @@ import React from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { toggleUploadPost } from '../../store/slices/popup.slice'
+import { toggleSearchOpen, toggleUploadPost } from '../../store/slices/popup.slice'
 import AddPost from '../../components/popups/AddPost'
 import { useEffect } from 'react'
-import { clearFeed, fetchHomeFeed } from '../../store/slices/social-media/post.slice'
+import { clearFeed, fetchHomeFeed, likeToggleOptimistic, toggleLike } from '../../store/slices/social-media/post.slice'
 import { useCallback } from 'react'
 import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice'
 import { fetchUsers } from '../../store/slices/social-media/user.slice'
+import SearchSidebar from '../../components/popups/SearchSidebar'
 
 const Home = () => {
 
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.auth)
-  const {isUploadPostModalOpen} = useSelector(state => state.popup)
+  const {isUploadPostModalOpen, isSearchOpen} = useSelector(state => state.popup)
   const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
-  const {isFollowing} = useSelector(state => state.profile)
+  const {followStatus} = useSelector(state => state.profile)
   const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
   const [title, setTitle] = useState('');
   const [images, setImages] = useState([])
@@ -25,8 +26,15 @@ const Home = () => {
 console.log(posts);
 console.log("user:",user);
 
+
+
+
   const handleToggleUpload = () => {
     dispatch(toggleUploadPost())
+  }
+
+  const toggleSearch =() => {
+    dispatch(toggleSearchOpen())
   }
 
   useEffect(()=> {
@@ -57,6 +65,7 @@ console.log("user:",user);
     // dispatch(optimisticFollowToggle({isFollowing: !isFollowing}))
     dispatch(toggleFollow(targetUserId))
   }
+  
 
   useEffect(()=> {
     const delay = setTimeout(()=> {
@@ -72,23 +81,20 @@ console.log("user:",user);
     }
   }
 
+  const handleLike = (post) => {
+    // 1. Instant UI update (Heart turns red, count goes up)
+    dispatch(likeToggleOptimistic({postId: post._id}));
+
+    // 2. Background sync with Server
+    dispatch(toggleLike({postId: post._id}));
+  }
+
   
   return (
     <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
       {/* navbar */}
      <header className='border-r border-right border-slate-500 p-6 max-w-sm w-full h-screen '>
       <nav className='space-y-3'>
-
-        <div className='relative'>
-          <Search className='absolute top-2 size-5 left-2 text-slate-400' />
-          <input 
-          type="text"
-           className='input-rounded' 
-           placeholder='...'
-           value={search}
-           onChange={(e)=> setSearch(e.target.value)}
-          />
-        </div>
 
 
         <div className='font-semibold '>
@@ -107,6 +113,17 @@ console.log("user:",user);
           <p>Reels</p>
           </Link>
           </div>
+
+          <div className=' hover:bg-slate-700 rounded-lg '
+          onClick={toggleSearch}
+          > 
+          <Link className='flex gap-2 p-2 ' >
+          <Search /> 
+          <p>Search</p>
+          </Link>
+          </div>
+
+          
 
           <div className=' hover:bg-slate-700 rounded-lg flex gap-2 p-2 '
           onClick={handleToggleUpload}
@@ -144,8 +161,11 @@ console.log("user:",user);
      <div className='space-y-2'>
        {
         posts && posts.length > 0 ? (
-        posts.map((post)=> (
-          <div
+        posts.map((post)=> 
+          
+          {
+              const following = followStatus[post?.authorId] ?? false;
+return (  <div
           key={post._id}
           className='p-4 space-y-4'
           >
@@ -161,7 +181,7 @@ console.log("user:",user);
               {/* buttons */}
               <div className='flex items-center gap-2'>
                 <button
-                className={`bg-slate-600 px-3 font-semibold py-1 rounded-lg ${isFollowing ? "hidden": "block"} `}
+                className={`bg-slate-600 px-3 font-semibold py-1 rounded-lg ${following ? "hidden": "block"} `}
                 onClick={()=> handleFollowClick(post?.authorId)}
                 >
                   Follow
@@ -192,8 +212,10 @@ console.log("user:",user);
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 {/* likes */}
-                <button className='flex items-center gap-1'>
-                  <Heart />
+                <button 
+                className='flex items-center gap-1'
+                >
+                  <Heart active={post.likedByMe}  onClick={()=> handleLike(post)} className={`${post?.likedByMe ? "fill-red-500 text-red-500": ""}`}/>
                   <p>{post?.stats?.likeCount}</p>
                 </button>
                 {/* comments */}
@@ -219,8 +241,9 @@ console.log("user:",user);
               <p>{post?.caption}</p>
             </div>
             </div>
-          </div>
-        ))
+          </div>)
+        
+})
         ) 
         : (<div>
             <p>No posts yet!!! Be the first one to upload the post </p>
@@ -239,8 +262,12 @@ console.log("user:",user);
       isUploadPostModalOpen && <AddPost />
      }
 
+     {
+      isSearchOpen && <SearchSidebar />
+     }
+
     </div>
   )
 }
 
-export default Home
+export default Home;

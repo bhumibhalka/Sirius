@@ -46,6 +46,3 @@ export const getProfile = asyncHandler(async(req,res,next) => {
   })
 })
 
-export const myProfile = asyncHandler(async(req,res,next) => {
-
-})

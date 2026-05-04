@@ -40,7 +40,7 @@ const profileScehma = new mongoose.Schema({
   // We update these via background workers, not by counting the DB on every load
   stats: {
     followers: {type:Number, default: 0},
-    following: {type:Number, deafult: 0},
+    following: {type:Number, default: 0},
     posts: {type: Number, default: 0},
     engagementRate: {type:Number, default: 0},
   },

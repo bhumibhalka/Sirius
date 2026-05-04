@@ -73,6 +73,9 @@ export const toggleFollow = asyncHandler(async(req,res,next)=> {
       Profile.updateOne({accountId: targetUserId}, {$inc: {"stats.followers": -1}})
     ])
 
+    console.log("FOLLOWER UPDATE:", followerResult);
+console.log("TARGET UPDATE:", targetResult);
+
    return res.status(200).json({
       success: true,
       isFollowing: false,
@@ -97,7 +100,8 @@ export const toggleFollow = asyncHandler(async(req,res,next)=> {
 
   return res.status(201).json({
     success: true,
-    isFollowing: true
+    isFollowing: true,
+     targetUserId 
   })
   }
 

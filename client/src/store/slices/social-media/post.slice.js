@@ -63,6 +63,16 @@ export const fetchAllPosts = createAsyncThunk('post/all/posts', async(cursor, th
   }
 })
 
+export const toggleLike = createAsyncThunk("toggleLike", async({postId}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.post(`/user/like/${postId}`);
+    toast.success(res?.data?.isLiked ? "Post is liked" : "Post is unliked");
+    return res?.data;
+  } catch (error) {
+    toast.error(error?.response?.data || 'Failed to like post');
+    return rejectWithValue(error?.response?.data)
+  }
+})
 
 
 const postSlice = createSlice({
@@ -74,6 +84,7 @@ const postSlice = createSlice({
     error: null,
     isRefreshing: false,
     status: 'idle',
+    comments: [],
   },
   reducers: {
     // Optimistic UI Update: Heart turns red immediately when clicked
@@ -100,6 +111,16 @@ const postSlice = createSlice({
     resetProfilePosts: (state) => {
       state.posts = [],
       state.nextCursor = null;
+    },
+    likeToggleOptimistic: (state, action) => {
+      const {postId} = action.payload;
+      const post = state.posts.find((p) => p._id === postId);
+
+      if(post) {
+        post.likedByMe = !post.likedByMe;
+
+        post.stats.likeCount += post.likedByMe ? 1 : -1
+      }
     }
 
   },
@@ -168,9 +189,19 @@ const postSlice = createSlice({
    .addCase(fetchAllPosts.rejected, (state)=> {
     state.loading = false;
    })
+   .addCase(toggleLike.rejected, (state, action) => {
+    const {postId} = action.payload;
+    const post = state.posts.find((p)=> p._id === postId);
+
+    if(post) {
+      post.likedByMe = !post.likedByMe;
+      post.stats.likeCount += post.likedByMe ? 1 : -1;
+      console.error("Like failed, rolling back UI");
+    }
+   })
   }
 })
 
-export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed, resetProfilePosts} = postSlice.actions
+export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed, resetProfilePosts, likeToggleOptimistic} = postSlice.actions
 
 export default postSlice.reducer
