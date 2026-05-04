@@ -12,7 +12,7 @@ router.get(
 )
 
 router.post(
-  '/:targetUserId',
+  '/follow/:targetUserId',
   isAuthenticated,
   toggleFollow
 )

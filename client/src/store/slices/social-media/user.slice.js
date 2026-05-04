@@ -14,6 +14,8 @@ try {
 }
 })
 
+
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
@@ -24,7 +26,11 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
   builder
+  .addCase(fetchUsers.pending, (state) => {
+    state.loading = true;
+  })
   .addCase(fetchUsers.fulfilled, (state, action) => {
+    state.loading = false;
     if(!action.meta.arg.cursor){
       state.items = action.payload.data;
     }else {
