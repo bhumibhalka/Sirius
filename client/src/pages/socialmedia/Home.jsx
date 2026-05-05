@@ -12,6 +12,7 @@ import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-
 import { fetchUsers } from '../../store/slices/social-media/user.slice'
 import SearchSidebar from '../../components/popups/SearchSidebar'
 import Comment from '../../components/popups/Comment'
+import { toggleSavePost } from '../../../../server/src/controllers/save.controller'
 
 const Home = () => {
 
@@ -94,6 +95,9 @@ const handleToggleComments = (post) => {
     dispatch(toggleLike({postId: post._id}));
   }
 
+  const handleSavePost = (postId) => {
+    dispatch(toggleSavePost(postId))
+  }
   
   return (
     <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
@@ -237,7 +241,7 @@ return (  <div
                 </button>
               </div>
 
-              <button>
+              <button onClick={() => handleSavePost(post._id)}>
                 <Bookmark />
               </button>
             </div>
