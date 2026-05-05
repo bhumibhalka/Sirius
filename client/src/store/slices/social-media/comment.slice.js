@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 
 export const createComment = createAsyncThunk("addComment", async({postId, content, parentId}, {rejectWithValue}) => {
   try {
-    const res = await axiosInstance.post('/user/comment',{postId,content, parentId});
+    const res = await axiosInstance.post('/comment/create-comment',{postId,content, parentId});
+    toast.success('Comment added')
     return res?.data?.data;
   } catch (error) {
     toast.error(error?.response?.data || 'Failed to post comment')
@@ -12,12 +13,23 @@ export const createComment = createAsyncThunk("addComment", async({postId, conte
   }
 })
 
+export const fetchComments = createAsyncThunk("fetchComments", async({postId, cursor}, {rejectWithValue})=> {
+  try {
+    const res = await axiosInstance.get(`/comment/comments/${postId}?cursor=${cursor || ''}`);
+    return res?.data;
+  } catch (error) {
+    return rejectWithValue(error?.response?.data)
+  }
+})
 
 const commentSlice = createSlice({
   name: 'comment',
   initialState: {
     items: [],
     loading : false,
+    nextCursor: null,
+    replyLoading : {},
+    error: null,
   },
   reducers: {
     addCommentOptimistic: (state, action) => {
@@ -25,6 +37,10 @@ const commentSlice = createSlice({
     },
     clearComments: (state) => {
     state.items = [];
+    },
+    resetComments: (state) => {
+      state.items = [];
+      state.nextCursor = null;
     }
   },
   extraReducers: (builder) => {
@@ -49,6 +65,17 @@ const commentSlice = createSlice({
   )
   .addCase(createComment.pending, (state)=> {
     state.isSubmitting = true;
+  })
+  .addCase(fetchComments.pending, (state) => {
+    state.loading = true;
+  })
+  .addCase(fetchComments.fulfilled, (state, action) => {
+    state.loading = false;
+    // Append if cursor exists, else replace (for fresh load)
+    state.items = action.meta.arg.cursor
+    ? [...state.items, ...action.payload.data]
+    : action.payload.data;
+    state.nextCursor = action.payload?.nextCursor;
   })
   }
 })

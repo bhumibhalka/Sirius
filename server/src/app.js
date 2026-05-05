@@ -9,6 +9,8 @@ import paymentRoutes from "./routes/payment.route.js";
 import postRoutes from "./routes/social-media-routes/post.route.js";
 import profileRoutes from "./routes/social-media-routes/profile.route.js";
 import socialUserRoutes from "./routes/social-media-routes/user.route.js"
+import commentRoutes from "./routes/social-media-routes/comment.route.js";
+import saveRoutes from "./routes/social-media-routes/save.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 
@@ -34,7 +36,8 @@ app.use('/api/v1/payment', paymentRoutes);
 app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/user", socialUserRoutes);
-
+app.use("/api/v1/comment", commentRoutes);
+app.use("/api/v1/save", saveRoutes);
 
 app.use(errorMiddleware);
 

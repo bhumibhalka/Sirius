@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 
 const saveSchema = new mongoose.Schema({
   userId: {
-  type:mongoose.Schema.Types.ObjectId,
-  ref: 'User',
+  type:String,
   required: true,
   },
   postId: {
@@ -21,4 +20,4 @@ const saveSchema = new mongoose.Schema({
 saveSchema.index({userId: 1, postId: 1}, {unique: true})
 
 const Save = mongoose.model('Save', saveSchema);
-export default saveSchema;
+export default Save;

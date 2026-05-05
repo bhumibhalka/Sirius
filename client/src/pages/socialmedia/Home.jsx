@@ -3,7 +3,7 @@ import React from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { toggleSearchOpen, toggleUploadPost } from '../../store/slices/popup.slice'
+import { toggleCommentModal, toggleSearchOpen, toggleUploadPost } from '../../store/slices/popup.slice'
 import AddPost from '../../components/popups/AddPost'
 import { useEffect } from 'react'
 import { clearFeed, fetchHomeFeed, likeToggleOptimistic, toggleLike } from '../../store/slices/social-media/post.slice'
@@ -11,23 +11,28 @@ import { useCallback } from 'react'
 import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice'
 import { fetchUsers } from '../../store/slices/social-media/user.slice'
 import SearchSidebar from '../../components/popups/SearchSidebar'
+import Comment from '../../components/popups/Comment'
 
 const Home = () => {
 
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.auth)
-  const {isUploadPostModalOpen, isSearchOpen} = useSelector(state => state.popup)
+  const {isUploadPostModalOpen, isSearchOpen, isCommentOpen} = useSelector(state => state.popup)
   const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
   const {followStatus} = useSelector(state => state.profile)
   const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
   const [title, setTitle] = useState('');
   const [images, setImages] = useState([])
   const [search, setSearch] = useState("");
+ const [currentPost, setCurrentPost] = useState(null);
 console.log(posts);
 console.log("user:",user);
 
 
-
+const handleToggleComments = (post) => {
+ setCurrentPost(post);
+  dispatch(toggleCommentModal())
+}
 
   const handleToggleUpload = () => {
     dispatch(toggleUploadPost())
@@ -173,7 +178,7 @@ return (  <div
             <div className='flex  items-center justify-between '>
               <div className='flex items-center gap-2'>
                 <div className='bg-white inline-flex rounded-full'>
-                  <img src={post?.author?.avatar  ||<UserIcon /> } alt="img" className='object-cover size-8' />
+                  <img src={post?.author?.avatar  } alt="img" className='object-cover size-8' />
                 </div>
                 <h3>{post?.author?.displayName}</h3>
               </div>
@@ -219,8 +224,10 @@ return (  <div
                   <p>{post?.stats?.likeCount}</p>
                 </button>
                 {/* comments */}
-                <button className='flex items-center gap-1'>
-                  <MessageCircle />
+                <button className='flex items-center gap-1'
+                 onClick={() => handleToggleComments(post)}
+                >
+                  <MessageCircle/>
                   <p>{post?.stats?.commentCount}</p>
                 </button>
                 {/* share */}
@@ -264,6 +271,15 @@ return (  <div
 
      {
       isSearchOpen && <SearchSidebar />
+     }
+
+     {/* comment model */}
+     {
+      isCommentOpen && (
+        <div className=' '>
+          <Comment  post={currentPost} />
+        </div>
+      )
      }
 
     </div>

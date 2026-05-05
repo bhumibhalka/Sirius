@@ -38,19 +38,19 @@ export const getUsers = asyncHandler(async(req,res,next)=> {
    .select('accountId displayName avatar bio stats')
    .lean();
 
-   // 🔥 ADD THIS
-console.log("USER IDS:", userIds);
+//    // 🔥 ADD THIS
+// console.log("USER IDS:", userIds);
 
-console.log("RAW PROFILES:", JSON.stringify(profiles, null, 2));
+// console.log("RAW PROFILES:", JSON.stringify(profiles, null, 2));
 
-profiles.forEach(p => {
-  console.log("PROFILE:", p.accountId, "followers:", p?.stats?.followers);
-});
+// profiles.forEach(p => {
+//   console.log("PROFILE:", p.accountId, "followers:", p?.stats?.followers);
+// });
 
-users.forEach(u => {
-  console.log("USER:", u.id);
-});
-// 🔥 END
+// users.forEach(u => {
+//   console.log("USER:", u.id);
+// });
+// // 🔥 END
 
    const profileMap = profiles.reduce((acc, p) => ({...acc, [String(p.accountId)]: p}), {})
 
@@ -132,15 +132,20 @@ export const toggleLike = asyncHandler(async(req,res,next) => {
 })
 
 export const createComment = asyncHandler(async(req,res,next)=> {
-  const {postId, content, parentId = null} = req.params;
+  const {postId, content, parentId = null} = req.body;
   const authorId = req.user.id;
 
+  if(!content || content.trim() === ""){
+  return res.status(400).json({message: "Content is required"});
+}
+  console.log("CONTENT RECEIVED:", content);
   const comment = await Comment.create({
     postId,
     authorId,
     content,
     parentId,
   });
+  console.log("SAVED COMMENT:", comment);
 
   if(parentId) {
     // If it's a reply, update parent comment's reply count
@@ -160,14 +165,48 @@ export const getComments = asyncHandler(async(req,res,next) => {
   const query = {postId, parentId};
   if(cursor) query.createdAt = {$lt: new Date(cursor)}
 
+  const limit = 10;
   const comments = await Comment.find(query)
   .sort({createdAt: -1})
-  .limit(10)
+  .limit(limit)
   .lean();
+ 
+  console.log(comments);
+
+  if(!comments.length){
+    return res.status(200).json({success: true, data: [], nextCursor: null})
+  } 
+
+  const authorIds = [...new Set(comments.map(c=> c.authorId))];
+
+  const profiles = await Profile.find({accountId: { $in: authorIds}})
+  .select('accountId displayName avatar')
+  .lean();
+  
+  // Create a lookup map for O(1) access
+  const profileMap = profiles.reduce((acc, p) => {
+    acc[p.accountId] = p ;
+    return acc;
+  },{})
+
+  // Attach profile data to each comment
+  const hydratedComments = comments.map(comment => ({
+    ...comment,
+    author: profileMap[comment.authorId] || {
+      displayName: 'Deleted User',
+      avatar: null
+    }
+  }))
+
+  console.log(hydratedComments)
+ 
+  const lastComment = comments[comments.length - 1];
+  const nextCursor = comments.length === limit ? lastComment.createdAt: null;
 
  res.status(200).json({
   success: true,
   data: hydratedComments
  })
+ 
 
 })
