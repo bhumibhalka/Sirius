@@ -1,6 +1,6 @@
 import express from 'express'
 import { isAuthenticated } from '../../middlewares/auth.middleware.js';
-import { toggleSavePost } from '../../controllers/save.controller.js';
+import { getSavedPosts, toggleSavePost } from '../../controllers/save.controller.js';
 
 const router = express.Router();
 
@@ -9,5 +9,12 @@ router.post(
   isAuthenticated,
   toggleSavePost
 )
+
+router.get(
+  '/all-saved/post',
+  isAuthenticated,
+  getSavedPosts
+)
+
 
 export default router;
