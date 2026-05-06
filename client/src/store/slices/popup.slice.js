@@ -9,6 +9,7 @@ const popupSlice = createSlice({
     isUploadPostModalOpen : false,
     isSearchOpen: false,
     isCommentOpen: false,
+    isEditProfileOpen: false,
   },
   reducers: {
     toggleMenu: (state) => {
@@ -28,10 +29,13 @@ const popupSlice = createSlice({
     },
     toggleCommentModal: (state) => {
       state.isCommentOpen = !state.isCommentOpen;
+    },
+    toggleEditProfileModal: (state) => {
+      state.isEditProfileOpen = !state.isEditProfileOpen;
     }
   }
 })
 
-export const {toggleMenu, toggleAddProduct, toggleEditModal, toggleUploadPost, toggleSearchOpen, toggleCommentModal} = popupSlice.actions;
+export const {toggleMenu, toggleAddProduct, toggleEditModal, toggleUploadPost, toggleSearchOpen, toggleCommentModal, toggleEditProfileModal} = popupSlice.actions;
 
 export default popupSlice.reducer;

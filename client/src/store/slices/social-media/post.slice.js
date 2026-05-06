@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
+import { toggleSavePost } from "./save.slice";
 
 export const createPost = createAsyncThunk("createPost", async(data,thunkAPI) => {
   try {
@@ -199,6 +200,14 @@ const postSlice = createSlice({
       console.error("Like failed, rolling back UI");
     }
    })
+  //  .addCase(toggleSavePost.fulfilled, (state, action) => {
+  //   const {postId, isSaved} = action.payload;
+
+  //     const post = state.posts.find(p => p._id === postId);
+  //     if (post) {
+  //       post.isSaved = isSaved;
+  //     }
+  //  })
   }
 })
 

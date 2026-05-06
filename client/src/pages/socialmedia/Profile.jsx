@@ -4,23 +4,31 @@ import { getProfile } from '../../store/slices/social-media/profile.slice';
 import { useParams } from 'react-router-dom';
 import { Bookmark, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
 import { useState } from 'react';
+import EditProfile from '../../components/popups/EditProfile';
+import { toggleEditProfileModal } from '../../store/slices/popup.slice';
 
 const Profile = () => {
 
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.auth)
   const {activeProfile, loading, error} = useSelector(state => state.profile)
-  const {posts} = useSelector(state => state.post)
+  const {posts} = useSelector(state => state.post);
+  const {isEditProfileOpen} = useSelector(state => state.popup);
   // console.log(user);
   console.log(activeProfile);
   console.log('posts:', posts);
   const {username} = useParams();
 
   const [filterPosts, setFilterPost] = useState('all')
+  // const [selectedProfile, setSelectedProfile] = useState(null);
 
   // const filteredPosts = posts?.filterPosts(post => {
   //   const matchesFilter = filterPosts === 'all' || post.
   // })
+
+  const openEditProfile = () => {
+    dispatch(toggleEditProfileModal())
+  }
 
   useEffect(()=> {
     if(username)  dispatch(getProfile(username))
@@ -77,6 +85,7 @@ const Profile = () => {
       <div className='flex gap-2 items-center'>
         <button
         className='w-full bg-slate-400 font-semibold py-1 rounded hover:bg-slate-500 transition-colors duration-300'
+        onClick={openEditProfile}
         >
           Edit Profile         
         </button>
@@ -150,8 +159,12 @@ const Profile = () => {
         
      </div>
       </div>
+
+      {
+        isEditProfileOpen && <EditProfile />
+      }
     </div>
   )
 }
 
-export default Profile
+export default Profile;

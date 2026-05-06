@@ -68,7 +68,7 @@ export const toggleFollow = asyncHandler(async(req,res,next)=> {
   if(exisitingFollow){ 
     await Follow.deleteOne({_id: exisitingFollow._id});
 
-    await Promise.all([
+  const [followerResult, targetResult] =  await Promise.all([
       Profile.updateOne({accountId: followerId}, {$inc: {"stats.following": -1}}),
       Profile.updateOne({accountId: targetUserId}, {$inc: {"stats.followers": -1}})
     ])
@@ -79,12 +79,13 @@ console.log("TARGET UPDATE:", targetResult);
    return res.status(200).json({
       success: true,
       isFollowing: false,
+      targetUserId
     })
   }else{
 
   await Follow.create({followerId, followingId: targetUserId})
 
-  await Promise.all([
+  const [followerResult, targetResult] = await Promise.all([
     Profile.updateOne({accountId: followerId}, {$inc: {'stats.following': 1}}),
     Profile.updateOne({accountId: targetUserId}, {$inc: {'stats.followers': 1}})
   ])

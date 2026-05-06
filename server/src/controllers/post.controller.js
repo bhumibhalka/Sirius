@@ -1,6 +1,7 @@
 import Profile from "../DBmodels/profile.model.js";
 import Like from "../DBmodels/social-media/like.model.js";
 import Post from "../DBmodels/social-media/post.model.js";
+import Save from "../DBmodels/social-media/save.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import ErrorHandler from "../middlewares/error.middleware.js";
@@ -99,14 +100,20 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
 
   const postIds = posts.map(p => p._id);
   const authorIds = [...new Set(posts.map(p => p.authorId))]
+  const userSaves = await Save.find({
+    userId: req.user.id,
+    postId: {$in: postIds}
+  }).select('postId')
 
-  const [profiles, userLikes] = await Promise.all([
-    // Get author names and avatars from MongoDB Profile
-    Profile.find({accountId: {$in: authorIds}}).select('accountId displayName avatar').lean(),
-    // Check if the CURRENT user liked these posts
-    Like.find({userId, postId: {$in: postIds}}).select('postId').lean()
-  ])
+  const savedSet = new Set(userSaves.map(s => s.postId.toString()))
 
+const [profiles, userLikes, followingList] = await Promise.all([
+  Profile.find({accountId: {$in: authorIds}}).select('accountId displayName avatar').lean(),
+  Like.find({userId, postId: {$in: postIds}}).select('postId').lean(),
+  Follow.find({followerId: userId, followingId: {$in: authorIds}}).select('followingId').lean()
+])
+
+const followingSet = new Set(followingList.map(f => f.followingId.toString()));
   const profileMap = profiles.reduce((acc, p) => ({...acc, [p.accountId] : p }), {});
   const likedMap = new Set(userLikes.map(l => l.postId.toString()));
   const savedMap = new Set(); // temporary
@@ -117,7 +124,8 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
     author: profileMap[post.authorId] || {displayName: 'Deleted User', avatar: null},
     likedByMe: likedMap.has(post._id.toString()),
     savedByMe: savedMap.has(post._id.toString()),
-    timeAgo: formatTimeAgo(post.createdAt)
+    timeAgo: formatTimeAgo(post.createdAt),
+    isSaved: savedSet.has(post._id.toString())
   }))
 
     const nextCursor =
@@ -128,7 +136,8 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
   return res.status(200).json({
     success: true,
     nextCursor,
-    data: hydratedFeed
+    data: hydratedFeed,
+    followingSet: [...followingSet]
   })
   
 })
