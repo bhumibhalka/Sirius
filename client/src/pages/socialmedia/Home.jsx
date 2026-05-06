@@ -197,7 +197,7 @@ useEffect(() => {
           {
               const following = followStatus[post?.authorId] ?? false;
 
-              const isSaved = library.some(p => p._id === post._id);
+             const isSaved = post.isSaved;
 return (  <div
           key={post._id}
           className='p-4 space-y-4'
