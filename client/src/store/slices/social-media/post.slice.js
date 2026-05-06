@@ -19,8 +19,8 @@ export const createPost = createAsyncThunk("createPost", async(data,thunkAPI) =>
 export const fetchHomeFeed = createAsyncThunk("post/all-posts", async({cursor}, thunkAPI) => {
   try {
     const url = cursor
-        ? `/post/all-posts?cursor=${cursor}`
-        : `/post/all-posts`;
+        ? `/post/home-feed?cursor=${cursor}`
+        : `/post/home-feed`;
     const res = await axiosInstance.get(url);
     // console.log(res?.data?.posts);
     return res?.data;
@@ -102,7 +102,7 @@ const postSlice = createSlice({
       const { postId } = action.payload;
       const post = state.posts.find(p => p._id === postId);
       if(post){
-        post.saveByMe = !post.saveByMe;
+        post.isSaved = !post.isSaved;
       }
     },
     clearFeed: (state) => {
@@ -200,14 +200,14 @@ const postSlice = createSlice({
       console.error("Like failed, rolling back UI");
     }
    })
-  //  .addCase(toggleSavePost.fulfilled, (state, action) => {
-  //   const {postId, isSaved} = action.payload;
+   .addCase(toggleSavePost.fulfilled, (state, action) => {
+  const { post, isSaved } = action.payload;
 
-  //     const post = state.posts.find(p => p._id === postId);
-  //     if (post) {
-  //       post.isSaved = isSaved;
-  //     }
-  //  })
+  const existingPost = state.posts.find(p => p._id === post._id);
+  if (existingPost) {
+    existingPost.isSaved = isSaved;
+  }
+})
   }
 })
 

@@ -1,4 +1,5 @@
 import Profile from "../DBmodels/profile.model.js";
+import Follow from "../DBmodels/social-media/Follow.model.js";
 import Like from "../DBmodels/social-media/like.model.js";
 import Post from "../DBmodels/social-media/post.model.js";
 import Save from "../DBmodels/social-media/save.model.js";
@@ -107,6 +108,10 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
 
   const savedSet = new Set(userSaves.map(s => s.postId.toString()))
 
+  console.log("userSaves:", userSaves);
+console.log("savedSet:", savedSet);
+console.log("postIds:", postIds);
+
 const [profiles, userLikes, followingList] = await Promise.all([
   Profile.find({accountId: {$in: authorIds}}).select('accountId displayName avatar').lean(),
   Like.find({userId, postId: {$in: postIds}}).select('postId').lean(),
@@ -116,16 +121,15 @@ const [profiles, userLikes, followingList] = await Promise.all([
 const followingSet = new Set(followingList.map(f => f.followingId.toString()));
   const profileMap = profiles.reduce((acc, p) => ({...acc, [p.accountId] : p }), {});
   const likedMap = new Set(userLikes.map(l => l.postId.toString()));
-  const savedMap = new Set(); // temporary
+  // const savedMap = new Set(); // temporary
   // const savedMap = new Set(userSaves.map(s => s.postId.toString()));
 
   const hydratedFeed = posts.map(post => ({
     ...post,
     author: profileMap[post.authorId] || {displayName: 'Deleted User', avatar: null},
     likedByMe: likedMap.has(post._id.toString()),
-    savedByMe: savedMap.has(post._id.toString()),
+    isSaved: savedSet.has(post._id.toString()),
     timeAgo: formatTimeAgo(post.createdAt),
-    isSaved: savedSet.has(post._id.toString())
   }))
 
     const nextCursor =
