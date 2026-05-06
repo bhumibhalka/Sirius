@@ -7,6 +7,7 @@ import postReducers from "./slices/social-media/post.slice"
 import profileReducers from "./slices/social-media/profile.slice"
 import userReducers from "./slices/social-media/user.slice"
 import commentReducers from "./slices/social-media/comment.slice"
+import saveReducers from "./slices/social-media/save.slice"
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     post: postReducers,
     profile: profileReducers,
     user: userReducers,
-    comment: commentReducers
+    comment: commentReducers,
+    save: saveReducers,
   }
 })

@@ -136,3 +136,10 @@ export const getUser = asyncHandler(async(req,res,next)=> {
      user
   })
 })
+
+export const updateUser = asyncHandler(async(req,res,next) => {
+  const userId = req.user.id;
+
+  const user = await User
+
+})

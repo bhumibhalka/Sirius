@@ -2,10 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
 
-export const toggleSavePost = createAsyncThunk("toggleSavePost", async(postId, thunkAPI) => {
+export const toggleSavePost = createAsyncThunk("toggleSavePost", async(post, thunkAPI) => {
   try {
-    const res = await axiosInstance.post(`/save/post-save/${postId}`);
-    return {postId, isSaved: res?.data?.isSaved};
+    const res = await axiosInstance.post(`/save/post-save/${post._id}`);
+    return {post, isSaved: res?.data?.isSaved};
   } catch (error) {
     toast.error(error?.response?.data || 'Failed to save post');
     return thunkAPI.rejectWithValue(error?.response?.data)
@@ -14,7 +14,7 @@ export const toggleSavePost = createAsyncThunk("toggleSavePost", async(postId, t
 
 export const fetchSavedPost = createAsyncThunk("fetchSavedPost", async({cursor}, {rejectWithValue}) => {
   try {
-    const res = await axiosInstance.get(`/save//all-saved/post?cursor=${cursor}`);
+    const res = await axiosInstance.get(`/save/all-saved/post?cursor=${cursor}`);
     return res?.data;
   } catch (error) {
     toast.error(error?.response?.data || 'Failed to fetch saved posts')
@@ -56,6 +56,14 @@ const saveSlice = createSlice({
     : action.payload.data;
     state.nextCursor = action.payload.nextCursor;
    })
+   .addCase(toggleSavePost.fulfilled, (state, action) => {
+  const { post, isSaved } = action.payload;
+  if (isSaved) {
+    state.library.push(post);                              // ✅ full post object
+  } else {
+    state.library = state.library.filter(p => p._id !== post._id);
+  }
+})
   }
 })
 

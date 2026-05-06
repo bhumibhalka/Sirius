@@ -8,11 +8,12 @@ import AddPost from '../../components/popups/AddPost'
 import { useEffect } from 'react'
 import { clearFeed, fetchHomeFeed, likeToggleOptimistic, toggleLike } from '../../store/slices/social-media/post.slice'
 import { useCallback } from 'react'
-import { optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice'
+import { optimisticFollowToggle, toggleFollow, seedFollowStatus } from '../../store/slices/social-media/profile.slice'
 import { fetchUsers } from '../../store/slices/social-media/user.slice'
 import SearchSidebar from '../../components/popups/SearchSidebar'
 import Comment from '../../components/popups/Comment'
-import { toggleSavePost } from '../../../../server/src/controllers/save.controller'
+import { fetchSavedPost, toggleSavePost } from '../../store/slices/social-media/save.slice'
+
 
 const Home = () => {
 
@@ -21,6 +22,7 @@ const Home = () => {
   const {isUploadPostModalOpen, isSearchOpen, isCommentOpen} = useSelector(state => state.popup)
   const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
   const {followStatus} = useSelector(state => state.profile)
+  const {library} = useSelector(state => state.save)
   const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
   const [title, setTitle] = useState('');
   const [images, setImages] = useState([])
@@ -28,6 +30,7 @@ const Home = () => {
  const [currentPost, setCurrentPost] = useState(null);
 console.log(posts);
 console.log("user:",user);
+
 
 
 const handleToggleComments = (post) => {
@@ -43,11 +46,16 @@ const handleToggleComments = (post) => {
     dispatch(toggleSearchOpen())
   }
 
-  useEffect(()=> {
-    if(posts.length === 0) {
-      dispatch(fetchHomeFeed({cursor: null}))
-    }
-  },[dispatch])
+ useEffect(() => {
+  if (posts.length === 0) {
+    dispatch(fetchHomeFeed({ cursor: null })).then((action) => {
+      if (action.payload?.followingSet) {
+        dispatch(seedFollowStatus(action.payload.followingSet));
+      }
+    });
+  }
+}, [dispatch])
+
 
   const loadMore = useCallback(()=> {
     if(status !== 'loading' && nextCursor){
@@ -60,11 +68,11 @@ const handleToggleComments = (post) => {
     dispatch(fetchHomeFeed({cursor: null}))
   }
 
-  const handleScroll = (e) => {
- const bottom =
-  e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-    if(bottom) loadMore()
-  }
+//   const handleScroll = (e) => {
+//  const bottom =
+//   e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+//     if(bottom) loadMore()
+//   }
 
   const handleFollowClick = (targetUserId) => {
     // const nextState = !isFollowing
@@ -95,14 +103,28 @@ const handleToggleComments = (post) => {
     dispatch(toggleLike({postId: post._id}));
   }
 
-  const handleSavePost = (postId) => {
-    dispatch(toggleSavePost(postId))
+  const handleSavePost = (post) => {
+    dispatch(toggleSavePost(post))
   }
+
+  // ✅ Add this useEffect instead
+useEffect(() => {
+  const handleScroll = () => {
+    const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 50;
+    if (nearBottom) loadMore();
+  };
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [loadMore]);
+
+  useEffect(()=> {
+    dispatch(fetchSavedPost({cursor : null }))
+  },[])
   
   return (
     <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
       {/* navbar */}
-     <header className='border-r border-right border-slate-500 p-6 max-w-sm w-full h-screen '>
+     <header className=' max-sm:hidden border-r border-right border-slate-500 p-6 max-w-sm w-full h-screen '>
       <nav className='space-y-3'>
 
 
@@ -174,6 +196,8 @@ const handleToggleComments = (post) => {
           
           {
               const following = followStatus[post?.authorId] ?? false;
+
+              const isSaved = library.some(p => p._id === post._id);
 return (  <div
           key={post._id}
           className='p-4 space-y-4'
@@ -241,8 +265,8 @@ return (  <div
                 </button>
               </div>
 
-              <button onClick={() => handleSavePost(post._id)}>
-                <Bookmark />
+              <button onClick={() => handleSavePost(post)}>
+                <Bookmark className={`${isSaved ? "fill-white text-white" : ""}`} />
               </button>
             </div>
             

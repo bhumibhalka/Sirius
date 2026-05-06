@@ -46,3 +46,80 @@ export const getProfile = asyncHandler(async(req,res,next) => {
   })
 })
 
+// export const updatedProfile = asyncHandler(async(req,res,next)=> {
+//   const {username, displayName, bio ,avatar, location} = req.body;
+//   const userId = req.user.id;
+
+//   if(username){
+//     const exisitingUser = await User.findOne({where: {username}});
+//     if(exisitingUser && exisitingUser.id !== userId){
+//       return res.status(400).json({
+//         success: true,
+//         message : 'Username already taken'
+//       })
+//     }
+//     await User.update({username}, {where: {id: userId}})
+//   }
+
+//   const updatedProfile = await Profile.findOneAndUpdate(
+//     {accountId: userId},
+//     {
+//       $set: {
+//       displayName,
+//       avatar,
+//       bio,
+//       location,
+//       lastUpdated: Date.now(),
+//     }},
+//     {new: true, runValidators: true}
+//   )
+
+//   res.status(200).json({
+//     success: true,
+//     data: {
+//       username,
+//       ...updatedProfile._doc
+//     }
+//   })
+// })
+
+
+export const updateProfile = asyncHandler(async(req,res,next) => {
+  const {username, displayName, bio, avatar, location} = req.body;
+  const userId = req.user.id;
+
+  if(username){
+    const existingUser = await User.findOne({ where: {username} });
+    if(existingUser && existingUser.id !== userId){
+      return res.status(400).json({
+        success: false,
+        message: 'Username already taken'
+      })
+    }
+    await User.update({username}, {where: {id: userId}});
+  }
+
+  const updatedProfile = await Profile.findOneAndUpdate(
+    {accountId: userId},
+    {
+      $set:{ 
+        displayName,
+        bio,
+        avatar,
+        location,
+        lastUpdated: Date.now()
+      }
+    },
+    {new: true, runValidators: true}
+  );
+
+  res.status(200).json({
+    success: true,
+    data: {
+      username,
+      ...updatedProfile._doc
+    }
+  })
+
+
+})

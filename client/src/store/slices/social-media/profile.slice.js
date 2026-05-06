@@ -16,11 +16,22 @@ export const getProfile = createAsyncThunk("getProfile", async(username, thunkAP
 export const toggleFollow = createAsyncThunk("toggleFollow", async(targetUserId, {rejectWithValue})=>{
   try {
     const res = await axiosInstance.post(`/profile/follow/${targetUserId}`);
-    toast.success('User followed')
+    toast.success(res?.data?.isFollowing ? 'User followed' : 'User unfollowed')
     return res?.data;
   } catch (error) {
     toast.error(error?.response?.data?.message || 'Failed to follow user');
     return rejectWithValue(error?.response?.data?.message)
+  }
+})
+
+export const updateProfile = createAsyncThunk("updateProfile", async(data,{rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.put('/profile/update', data);
+    toast.success(res?.data?.message || 'Profile updated successfully');
+    return res?.data;
+  } catch (error) {
+    toast.error(error?.response?.data || 'Failed to update profile')
+    return rejectWithValue(error?.response?.data)
   }
 })
 
@@ -31,6 +42,7 @@ const profileSlice = createSlice({
     loading: false,
     error: null,
      followStatus: {},
+     isUpdating: false,
   },
   reducers: {
     // Update relationship status locally if user clicks "Follow"
@@ -40,15 +52,38 @@ const profileSlice = createSlice({
     //     state.activeProfile.stats.followers += action.payload ? 1 : -1;
     //   }
     // },
-    optimisticFollowToggle: (state, action) => {
-      const {isFollowing} = action.payload;
-      if(state.activeProfile) {
-        state.activeProfile.relationship.isFollowing = isFollowing;
-        //update stats locally
-        state.activeProfile.stats.followers += isFollowing ? 1 : -1
-      }
+  // optimisticFollowToggle: (state, action) => {  // existing
+  // seedFollowStatus: (state, action) => {               // ← add this
+  //   action.payload.forEach(id => {
+  //     state.followStatus[id] = true;
+  //   });
+  // }
+
+
+
+  optimisticFollowToggle: (state, action) => {
+    const userId = action.payload;
+
+    // toggle follow status locally
+    state.followStatus[userId] = !state.followStatus[userId];
+
+    // also update active profile if it's the same user
+    if (state.activeProfile && state.activeProfile._id === userId) {
+      const isFollowing = state.followStatus[userId];
+
+      state.activeProfile.relationship.isFollowing = isFollowing;
+      state.activeProfile.stats.followers += isFollowing ? 1 : -1;
     }
   },
+
+  seedFollowStatus: (state, action) => {
+    action.payload.forEach(id => {
+      state.followStatus[id] = true;
+    });
+  }
+  },
+
+
   extraReducers: (builder) => {
    builder
    .addCase(getProfile.pending, (state) => {
@@ -78,8 +113,20 @@ const profileSlice = createSlice({
      }
      state.error = action.payload?.message || 'Follow action failed';
    })
+   .addCase(updateProfile.pending, (state) => {
+    state.isUpdating = true;
+   })
+   .addCase(updateProfile.fulfilled, (state, action)=> {
+    state.isUpdating = false;
+    state.activeProfile = {...state.activeProfile , ...action.payload.data};
+    state.error = null;
+   })
+   .addCase(updateProfile.rejected, (state, action) => {
+    state.isUpdating = false;
+    state.error = action.payload?.message;
+   })
   }
 })
 
-export const {optimisticFollowToggle} = profileSlice.actions;
+export const { optimisticFollowToggle, seedFollowStatus } = profileSlice.actions;
 export default profileSlice.reducer;

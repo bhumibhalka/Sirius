@@ -16,7 +16,7 @@ export const toggleSavePost = asyncHandler(async(req,res,next) => {
   const existingSave = await Save.findOne({userId, postId});
   if(existingSave){
     await Save.deleteOne({_id: existingSave._id});
-    return res.sttaus(200).json({success: true, isSaved: false});
+    return res.status(200).json({success: true, isSaved: false});
   }else{
     await Save.create({userId, postId});
     return res.status(201).json({success: true, isSaved: true})
@@ -51,7 +51,7 @@ export const getSavedPosts = asyncHandler(async(req,res,next) => {
   ? savedItems[savedItems.length - 1].createdAt 
   : null;
 
-  res.status(200).jsom({success: true, data, nextCursor})
+  res.status(200).json({success: true, data, nextCursor})
 
 })
 
