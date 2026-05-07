@@ -63,14 +63,22 @@ export const toggleFollow = asyncHandler(async(req,res,next)=> {
     return next (new ErrorHandler('You cannot follow yourself',400))
   }
 
+//   console.log("followerId type:", typeof followerId, "value:", followerId);
+// console.log("targetUserId type:", typeof targetUserId, "value:", targetUserId);
+
+console.log("Looking for accountId:", targetUserId);
+const profile = await Profile.findOne({ accountId: targetUserId });
+console.log("FOUND PROFILE:", profile);
+ 
+
   const exisitingFollow = await Follow.findOne({followerId, followingId: targetUserId});
 
   if(exisitingFollow){ 
     await Follow.deleteOne({_id: exisitingFollow._id});
 
   const [followerResult, targetResult] =  await Promise.all([
-      Profile.updateOne({accountId: followerId}, {$inc: {"stats.following": -1}}),
-      Profile.updateOne({accountId: targetUserId}, {$inc: {"stats.followers": -1}})
+      Profile.updateOne({accountId: String(followerId)}, {$inc: {"stats.following": -1}}),
+      Profile.updateOne({accountId:String(targetUserId)}, {$inc: {"stats.followers": -1}})
     ])
 
     console.log("FOLLOWER UPDATE:", followerResult);
@@ -86,8 +94,8 @@ console.log("TARGET UPDATE:", targetResult);
   await Follow.create({followerId, followingId: targetUserId})
 
   const [followerResult, targetResult] = await Promise.all([
-    Profile.updateOne({accountId: followerId}, {$inc: {'stats.following': 1}}),
-    Profile.updateOne({accountId: targetUserId}, {$inc: {'stats.followers': 1}})
+    Profile.updateOne({accountId: String(followerId)}, {$inc: {'stats.following': 1}}),
+    Profile.updateOne({accountId: String(targetUserId)}, {$inc: {'stats.followers': 1}})
   ])
 
   // await createNotification(
@@ -106,4 +114,5 @@ console.log("TARGET UPDATE:", targetResult);
   })
   }
 
-})
+});
+

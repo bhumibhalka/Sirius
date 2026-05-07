@@ -11,16 +11,23 @@ import profileRoutes from "./routes/social-media-routes/profile.route.js";
 import socialUserRoutes from "./routes/social-media-routes/user.route.js"
 import commentRoutes from "./routes/social-media-routes/comment.route.js";
 import saveRoutes from "./routes/social-media-routes/save.route.js";
+import orderRoutes from "./routes/order.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
+import { handleStripeWebhook } from "./controllers/payment.controller.js";
 
 const app = express();
-console.log("FRONTEND URL:", ENV.FRONTEND_URL);
 app.use(cors({
   origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
 }))
+
+app.post('/api/v1/payment/stripe/webhook',
+  express.raw({type: "application/json"}),
+  handleStripeWebhook
+)
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser())
@@ -38,6 +45,7 @@ app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/user", socialUserRoutes);
 app.use("/api/v1/comment", commentRoutes);
 app.use("/api/v1/save", saveRoutes);
+app.use("/api/v1/order", orderRoutes);
 
 app.use(errorMiddleware);
 

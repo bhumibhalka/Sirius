@@ -46,6 +46,14 @@ const handleToggleComments = (post) => {
     dispatch(toggleSearchOpen())
   }
 
+  useEffect(()=> {
+  const delay = setTimeout(()=> {
+    dispatch(fetchUsers({search: "", cursor: null }))  // ← always empty string!
+  },400)
+  return ()=> clearTimeout(delay);
+},[dispatch, search])  // ← 'search' state changes but never gets passed
+  
+
  useEffect(() => {
   if (posts.length === 0) {
     dispatch(fetchHomeFeed({ cursor: null })).then((action) => {

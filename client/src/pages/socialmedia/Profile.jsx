@@ -6,6 +6,7 @@ import { Bookmark, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
 import { useState } from 'react';
 import EditProfile from '../../components/popups/EditProfile';
 import { toggleEditProfileModal } from '../../store/slices/popup.slice';
+import { getUserPosts, resetProfilePosts } from '../../store/slices/social-media/post.slice';
 
 const Profile = () => {
 
@@ -30,10 +31,13 @@ const Profile = () => {
     dispatch(toggleEditProfileModal())
   }
 
-  useEffect(()=> {
-    if(username)  dispatch(getProfile(username))
-  },[username])
-
+useEffect(() => {
+  if (username) {
+    dispatch(resetProfilePosts()); // ✅ clear old feed posts
+    dispatch(getProfile(username)); // profile info
+    dispatch(getUserPosts()); // ✅ fetch ONLY this user's posts
+  }
+}, [username]);
   return (
     <div className='bg-black min-h-screen p-6 text-white'>
      

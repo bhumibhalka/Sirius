@@ -104,6 +104,15 @@ const Cart = () => {
 
        </div>
 
+       <div>
+        <button
+         className='btn'
+         onClick={() => navigate('/user/checkout')}
+        >
+          Place Order
+        </button>
+       </div>
+
     </div>
   )
 }
