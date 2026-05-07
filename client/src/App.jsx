@@ -18,6 +18,8 @@ import SocialLayout from './components/layout/SocialLayout'
 import Home from './pages/socialmedia/Home'
 import Profile from './pages/socialmedia/Profile'
 import Posts from './pages/socialmedia/Posts'
+import PaymentSuccess from './pages/e-commerce/user/PaymentSuccess'
+import Checkout from './pages/e-commerce/user/Checkout'
 
 
 const getHomeRoute = (role) => {
@@ -113,6 +115,7 @@ const App = () => {
       <Route path='products' element={<Products />} />
       <Route path='product/:id' element={<Product />} />
       <Route path='cart' element={<Cart/>} />
+      <Route path='checkout' element={<Checkout />} />
       </Route>
 
 
@@ -141,7 +144,8 @@ const App = () => {
 
   {/* <Route path='/user' element={<HomePage />} /> */}
 
-
+      
+      <Route path='/payment-success' element={<PaymentSuccess />} />
       <Route path='*' element={ <PageNotFound />} />
     </Routes>
   )
