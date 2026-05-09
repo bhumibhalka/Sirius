@@ -38,6 +38,8 @@ export const fetchMyOrders = createAsyncThunk("fetchOrders", async(cursor, {reje
   }
 })
 
+
+
 const orderSlice = createSlice({
   name: 'order',
   initialState: {
@@ -79,6 +81,21 @@ const orderSlice = createSlice({
     : action.payload.data;
     state.nextCursor = action.payload.nextCursor;
   })
+  // .addCase(fetchSellerOrders.pending, (state, action) => {
+  //   state.loading = true;
+  //   state.error = null;
+  // })
+  // .addCase(fetchSellerOrders.fulfilled, (state, action) => {
+  //   state.loading = false;
+  //   state.history = action.meta.arg 
+  //   ? [...state.history , ...action.payload.data]
+  //   : action.payload.data;
+  //   state.nextCursor = action.payload.data;
+  // })
+  // .addCase(fetchSellerOrders.rejected, (state, action) => {
+  //   state.loading = false;
+  //   state.error = action.payload;
+  // })
   }
 })
 

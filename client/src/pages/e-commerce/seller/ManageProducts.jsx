@@ -5,6 +5,7 @@ import { toggleAddProduct, toggleEditModal } from '../../../store/slices/popup.s
 import AddProduct from '../../../components/popups/AddProduct';
 import { deleteProduct, fetchUserProducts } from '../../../store/slices/product.slice';
 import EditModal from '../../../components/popups/EditModal';
+import { fetchSellerOrders } from '../../../store/slices/seller.slice';
 
 
 const ManageProducts = () => {
@@ -13,12 +14,15 @@ const ManageProducts = () => {
   const {isAddProductModalOpen} = useSelector(state => state.popup);
   const {products} = useSelector(state => state.product)
   const {isEditModalOpen} = useSelector(state => state.popup);
+  const orders = useSelector(state => state.seller.orders) || {};
   //  console.log(products);
+   console.log("orders:",orders);
 
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredCategory, setfilteredCategory] = useState('all')
   const [selectedProduct, setSelectedProduct]= useState(null);
 
+  const totalSales = orders?.reduce((acc, o) => acc + o.subtotal, 0 )
    
   const openAddProduct = () => {
     dispatch(toggleAddProduct());
@@ -31,6 +35,7 @@ const ManageProducts = () => {
   const handleDelete = (id) => {
     dispatch(deleteProduct(id))
   }
+  
 
   const filteredProducts = products?.filter((product)=> {
     const matchesSearch = 
@@ -45,14 +50,14 @@ const ManageProducts = () => {
   const productStats = [
     {
       title: "TOTAL PRODUCTS",
-     number:` ${products.length}`,
+     number: products.length ?? 0,
       class: "bg-green-100 text-green-500",
       text: "+12%",
        },
 
     {
       title: "LOW STOCK",
-       number: products.length || 12,
+       number: products.filter((p) => p.variants?.[0]?.stock < 3).length ?? 0,
        class: "bg-yellow-100 text-yellow-500",
       text: "Warning",
       },
@@ -60,19 +65,23 @@ const ManageProducts = () => {
 
     {
       title: "OUT OF STOCK",
-       number: products.length || 12,
+       number: products.filter((p) => p.variants?.[0]?.stock === 0).length ?? 0,
        class: "bg-red-100 text-red-500",
       text: "Critical",
       },
 
     {
       title: "MONTHLY SALES",
-       number: ` $${products.length}`,
+       number: `$ ${totalSales ?? 0}`,
         class: "bg-green-100 text-green-500",
       text: "+12%",
       }
 
   ]
+
+  useEffect(() => {
+    dispatch(fetchSellerOrders({status: null, cursor: null}))
+  },[dispatch])
 
 
   return (
@@ -114,19 +123,21 @@ const ManageProducts = () => {
       </div>
 
    {/* FILTERING BUTTON */}
-   <div className='flex flex-col md:flex-row gap-2 mb-5'>
-    <div>
-      <label className='text-lg font-semibold'>Search</label>
+   <div className='flex items-center flex-col md:flex-row gap-2 mb-5'>
+    <div className='w-full '>
+      {/* <label className='text-lg font-semibold'>Search</label> */}
     <input
      type="text" 
-     className='input'
+     className='input '
+     placeholder='Search item by name or description...'
      value={searchQuery}
      onChange={(e) => setSearchQuery(e.target.value)}
     />
     </div>
 
+      <div>
     <select 
-    className='input'
+    className='input '
     value={filteredCategory}
     onChange={(e)=> setfilteredCategory(e.target.value)}
     >
@@ -141,6 +152,7 @@ const ManageProducts = () => {
             <option value="Bespoke">Bespoke</option>
             <option value="Statement">Statement</option>
     </select>
+    </div>
    </div>
 
     {/* PRODUCTS TABLE */}

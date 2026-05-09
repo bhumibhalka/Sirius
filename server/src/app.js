@@ -12,6 +12,7 @@ import socialUserRoutes from "./routes/social-media-routes/user.route.js"
 import commentRoutes from "./routes/social-media-routes/comment.route.js";
 import saveRoutes from "./routes/social-media-routes/save.route.js";
 import orderRoutes from "./routes/order.route.js";
+import adminRoutes from "./routes/admin.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 import { handleStripeWebhook } from "./controllers/payment.controller.js";
@@ -46,6 +47,7 @@ app.use("/api/v1/user", socialUserRoutes);
 app.use("/api/v1/comment", commentRoutes);
 app.use("/api/v1/save", saveRoutes);
 app.use("/api/v1/order", orderRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 app.use(errorMiddleware);
 

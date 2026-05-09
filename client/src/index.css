@@ -30,6 +30,9 @@
   @apply text-center bg-black text-white text-lg rounded-lg px-3 py-1 hover:cursor-pointer hover:scale-105 disabled:cursor-not-allowed hover:bg-white hover:text-black transition-all duration-300 font-semibold shadow-2xl border 
 }
 
+.btn-outline {
+  @apply border border-slate-400 w-full rounded py-1
+}
 
 .black-card {
   @apply bg-black p-6 rounded-lg shadow text-white

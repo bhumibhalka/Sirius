@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProfile } from '../../store/slices/social-media/profile.slice';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Bookmark, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
 import { useState } from 'react';
 import EditProfile from '../../components/popups/EditProfile';
@@ -11,6 +11,7 @@ import { getUserPosts, resetProfilePosts } from '../../store/slices/social-media
 const Profile = () => {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {user} = useSelector(state => state.auth)
   const {activeProfile, loading, error} = useSelector(state => state.profile)
   const {posts} = useSelector(state => state.post);
@@ -56,7 +57,7 @@ useEffect(() => {
         <div>
         <div className='flex gap-2 items-center'>
           <h3 className='text-xl font-semibold'>{activeProfile?.displayName}</h3>
-          <Settings  className='size-5'/>
+          <Settings  className='size-5' onClick={() => navigate('/settings')}/>
           </div>
         
         <p className='text-xs'>{activeProfile?.username}</p>

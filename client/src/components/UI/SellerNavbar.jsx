@@ -17,17 +17,18 @@ const SellerNavbar = () => {
   return (
     <>
     <header  className=' bg-black/60 inset-0 backdrop-blur-sm z-50 fixed shadow-2xs h-14 text-white block'  >
-      <nav className='flex items-center justify-between max-w-4xl mx-auto px-10  h-14'>
+      <nav className='flex items-center justify-between max-w-6xl mx-auto px-10  h-14'>
  
-         <div className='w-full tracking-widest text-lg font-bold'>
+         <div className='w-full tracking-widest text-lg font-bold '>
           {/* <img src="" alt="" /> */}
           LUMIÈRE
           </div>       
 
-          <ul className='flex items-center justify-evenly w-full max-sm:hidden '>
-          <li><Link>Products</Link></li>
-          <li><Link>Products</Link></li>
-          <li><Link>Products</Link></li>
+          <ul className='flex items-center justify-evenly w-full max-sm:hidden text-sm  '>
+          <li className='hover:scale-105 transition-all duration-300 '><Link to={'/seller/manage-products'}>Manage Products</Link></li>
+          <li className='hover:scale-105 transition-all duration-300 '><Link to={'/seller/manage-orders'}>Manage Orders</Link></li>
+          <li className='hover:scale-105 transition-all duration-300 '><Link>Notifications</Link></li>
+          <li className='hover:scale-105 transition-all duration-300 '><Link>Social Profile</Link></li>
         </ul>
 
         <div className='sm:hidden block'

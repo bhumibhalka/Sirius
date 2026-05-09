@@ -105,7 +105,7 @@ const Menu = () => {
             </li>
 
             <li className='hover:scale-105 transition-all duration-300'>
-              <Link to="/social-media/profile" onClick={closeMenu}>
+              <Link to={`/social/profile/${user.username}`} onClick={closeMenu}>
             Social Profile
             </Link>
             </li>

@@ -20,6 +20,12 @@ import Profile from './pages/socialmedia/Profile'
 import Posts from './pages/socialmedia/Posts'
 import PaymentSuccess from './pages/e-commerce/user/PaymentSuccess'
 import Checkout from './pages/e-commerce/user/Checkout'
+import ManageOrders from './pages/e-commerce/seller/ManageOrders'
+import Settings from './components/UI/Settings'
+import UserManagement from './pages/admin/UserManagement'
+import OrdersManagement from './pages/admin/OrdersManagement'
+import ProductManagement from './pages/admin/ProductManagement'
+import AdminLayout from './components/layout/AdminLayout'
 
 
 const getHomeRoute = (role) => {
@@ -95,11 +101,14 @@ const App = () => {
       path="/admin"
       element={
         <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
+            <AdminLayout />
         </ProtectedRoute>
       }
       >
         <Route index element={<AdminDashboard />}/>
+        <Route path='user-management' element={<UserManagement />} />
+        <Route path='order-management' element={<OrdersManagement />} />
+        <Route path='product-management' element={<ProductManagement />} />
       </Route>
 
         {/* user e-commerce */}
@@ -130,6 +139,7 @@ const App = () => {
       >
         <Route index element={<SellerDashboard />} />
         <Route path='manage-products' element={<ManageProducts />}/>
+        <Route path='manage-orders' element={<ManageOrders />} />
       </Route>
     
 
@@ -143,8 +153,8 @@ const App = () => {
      </Route>
 
   {/* <Route path='/user' element={<HomePage />} /> */}
-
-      
+   
+      <Route path='/settings' element={<Settings />} />      
       <Route path='/payment-success' element={<PaymentSuccess />} />
       <Route path='*' element={ <PageNotFound />} />
     </Routes>
