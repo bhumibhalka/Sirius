@@ -1,6 +1,17 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom';
+import { addToCart } from '../../store/slices/cart.slice';
 
 const ShopTheLook = () => {
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleAddToCart = (id) => {
+    dispatch(addToCart({productId: id , quantity: 1}))
+  }
+
   return (
     <section className='min-h-screen w-full max-w-7xl mx-auto   pb-6'>
       
@@ -21,9 +32,15 @@ const ShopTheLook = () => {
         <div className='group ' >
 
           <div className='relative '>
+            <div
+            onClick={()=> navigate(`/user/product/${'6a0094833f99c88c70b73817'}`)}
+            >
            <img src="/shop_the_look_shirt.avif" alt="" className='w-full'  />
+            </div>
 
-                <button className='absolute bottom-0 left-1/2 -translate-x-1/2 bg-white text-amber-800 font-semibold px-4 py-4 opacity-0 group-hover:opacity-100 transition duration-300 w-full  '>
+                <button className='absolute bottom-0 left-1/2 -translate-x-1/2 bg-white text-amber-800 font-semibold px-4 py-4 opacity-0 group-hover:opacity-100 transition duration-300 w-full  '
+                onClick={() => handleAddToCart('6a0094833f99c88c70b73817')}
+                >
              ADD TO CART
            </button>
            </div>
@@ -39,9 +56,13 @@ const ShopTheLook = () => {
        <div className='group'>
 
         <div className='relative'>
+         <div onClick={()=> navigate(`/user/product/${'6a0095023f99c88c70b7381a'}`)}>
         <img src="/shop_the_look_pants.avif" alt="" className='w-full'/>
+         </div>
 
-        <button className='absolute bottom-0 left-1/2 -translate-x-1/2 bg-white py-4 text-amber-800 font-semibold  px-4 opacity-0 group-hover:opacity-100 transition duration-300 w-full '>
+        <button className='absolute bottom-0 left-1/2 -translate-x-1/2 bg-white py-4 text-amber-800 font-semibold  px-4 opacity-0 group-hover:opacity-100 transition duration-300 w-full '
+        onClick={() => handleAddToCart('6a0095023f99c88c70b7381a')}
+        >
           Add To Cart
         </button>
         </div>

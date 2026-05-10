@@ -1,3 +1,5 @@
+import Order from "../DBmodels/order.model.js";
+import Product from "../DBmodels/product.model.js";
 import Profile from "../DBmodels/profile.model.js";
 import Comment from "../DBmodels/social-media/comment.model.js";
 import Like from "../DBmodels/social-media/like.model.js";
@@ -101,6 +103,50 @@ export const getUsers = asyncHandler(async(req,res,next)=> {
 
 //   }
 // })
+
+export const getAdminStats = asyncHandler(async(req,res,next) => {
+  const {cursor, limit = 10} = req.query;
+  
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const revenueStats = await Order.aggregate([
+    {$match: {createdAt : {$gte: thirtyDaysAgo}, status: 'paid'}},
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalAmount"},
+        orderCount: { $sum: 1 },
+        avgOrderValue: { $avg: "$totalAmount" }
+      }
+    }
+  ]);
+
+  const statusDistribution = await Order.aggregate([
+    {$group : {_id: "$status", count: {$sum: 1}}}
+  ])
+
+  const totalUsers = await User.count();
+  // Assuming a 'createdAt' column in your SQL User table
+    // const newUsersThisMonth = await User.count({ where: { ... } });
+
+  const lowStockCount = await Product.countDocuments({stock: {$lt : 10}})
+
+  res.status(200).json({
+    success: true,
+    data: {
+      summary: {
+        revenue: revenueStats[0]?.totalRevenue || 0,
+        orders: revenueStats[0]?.orderCount || 0,
+        avgValue: revenueStats[0]?.avgOrderValue || 0,
+        users :totalUsers,
+      },
+      distribution: statusDistribution,
+      inventory: lowStockCount
+    }
+  })
+
+})
 
 export const toggleLike = asyncHandler(async(req,res,next) => {
   const {postId} = req.params;

@@ -26,6 +26,7 @@ for(const item of items) {
   calculatedTotal += variant.price * item.quantity;
   orderItems.push({
     productId: product._id,
+    sellerId : product.sellerId,
     name: product.title,
     price: variant.price,
     quantity: item.quantity,
@@ -35,6 +36,8 @@ for(const item of items) {
 
 const order = await Order.create({
  userId,
+ customerName: req.user.username,
+ customerEmail: req.user.email,
  items: orderItems,
  totalAmount: calculatedTotal,
  shippingAddress,
@@ -64,7 +67,7 @@ export const getOrders = asyncHandler(async(req,res,next) => {
   .limit(Number(limit))
   .lean();
 
-  const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1 ] : null ;
+  const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1 ].createdAt : null ;
 
   res.status(200).json({
     success: true,
@@ -73,3 +76,85 @@ export const getOrders = asyncHandler(async(req,res,next) => {
     nextCursor
   })
 })
+
+export const getSellerOrders = asyncHandler(async(req,res,next) => {
+  const { status, cursor, limit = 10} = req.query;
+  const sellerId = req.user.id;
+
+  const query = {'items.sellerId' : sellerId};
+
+  if(status) query.status = status;
+  
+  if(cursor) query.createdAt = {$lt: new Date(cursor)};
+
+  const orders = await Order.find(query)
+  .sort({createdAt: -1})
+  .limit(Number(limit))
+  .lean();
+
+  const sellerView = orders.map((order) => {
+    const myItems = order.items.filter((item) => item.sellerId === sellerId)
+    const mySubtotal = myItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    return {
+      _id: order._id,
+      status: order.status,
+      customerName: order.customerName,
+      items: myItems,
+      subtotal: mySubtotal,
+      createdAt: order.createdAt,
+      shippingAddress: order.shippingAddress
+    }
+  })
+
+  const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1].createdAt : null;
+
+  res.status(200).json({
+    success: true,
+    data: sellerView,
+    nextCursor,
+  })
+
+})
+
+
+
+// export const getSellerOrders = asyncH andler(async(req,res,next)=> {
+//   const { status ,cursor, limit = 10} = req.query;
+//   const sellerId = req.user.id;
+ 
+//   const query = {"items.sellerId" : sellerId};
+
+//   if(status) query.status = status;
+
+//   if(cursor) query.createdAt = { $lt: new Date(cursor)};
+
+//   const orders = await Order.find(query)
+//   .sort({createdAt: -1})
+//   .limit(Number(limit))
+//   .lean();
+
+//   const sellerView = orders.map((order) => {
+//     const myItems = order.items.filter(item => item.sellerId === sellerId);
+//     const mySubtotal = myItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+//     return {
+//       _id: order._id,
+//       status: order.status,
+//       customerName: order.shippingAddress.name,
+//       item: myItems,
+//       subtotal: mySubtotal,
+//       createdAt: order.createdAt,
+//       shippingAddress: order.shippingAddress
+//     }
+//   })
+
+//   const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1] : null;
+
+//   res.status(200).json({
+//     success: true,
+//     data: sellerView,
+//     nextCursor,
+//   })
+
+// })

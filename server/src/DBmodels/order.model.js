@@ -12,11 +12,17 @@ const orderSchema = new mongoose.Schema({
       ref: 'Product',
       required: true,
     },
+    sellerId: {
+      type: String,
+      ref: "User",
+    },
     name: {type:String, required: true},
     price: {type: Number, required: true},
     quantity :{type: Number, required: true, min: 1},
     img: String,
   }],
+  customerName: String,
+  customerEmail: String, 
   totalAmount :{
     type:Number,
     required: true,

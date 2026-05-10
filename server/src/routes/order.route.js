@@ -1,7 +1,7 @@
 import express from 'express'
 import { handleStripeWebhook } from '../controllers/payment.controller.js';
 import { isAuthenticated } from '../middlewares/auth.middleware.js';
-import { getOrders, placeOrder } from '../controllers/order.controller.js';
+import { getOrders, getSellerOrders, placeOrder } from '../controllers/order.controller.js';
 
 const router = express.Router();
 
@@ -21,6 +21,11 @@ router.post(
 router.get( 
   '/get-orders',
   getOrders
+)
+
+router.get(
+  '/seller/orders',
+  getSellerOrders
 )
 
 export default router;

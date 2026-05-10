@@ -1,11 +1,14 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const TheEssentials = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className=''>
       
-    <div className='w-full max-w-7xl h-screen mt-20 mx-auto'>
+    <div className='w-full max-w-7xl  mt-20 mx-auto p-4'>
   
     {/* HEADER */}
      <div className='flex items-center justify-between'>
@@ -13,11 +16,17 @@ const TheEssentials = () => {
       <Link to={'/user/products'}>View All</Link>
      </div>
 
-     <div className='grid grid-cols-1 md:grid-cols-4 gap-3  mt-8 '>
+     <div className='grid grid-cols-1 md:grid-cols-4 gap-3 mt-8 '>
 
 {/* onclick open model amd on view all navigate them to essentials */}
-      <div>
-        <img src="/women_essentials.webp" alt="" className='' />
+
+      {/* women */}
+      <div >
+        <div className='flex items-center justify-center bg-white hover:scale-105 transition-all duration-300'
+        onClick={()=> navigate(`/user/product/${'69f0ae291024fb46ca6486c7'}`)}
+        >
+        <img src="/women_essentials.webp" alt="" className='h-[466px] ' />
+        </div>
 
         <div className='flex justify-between items-center mt-3'>
           <span className='text-blue-900 text-lg font-semibold'>Blue Suit</span>
@@ -25,8 +34,13 @@ const TheEssentials = () => {
         </div>
       </div>
 
+        {/* men */}
       <div>
-        <img src="/men_essentials.jpeg" alt="" className='h-[466px]' />
+        <div className='flex items-center justify-center bg-white hover:scale-105 transition-all duration-300'
+        onClick={()=> navigate(`/user/product/${'6a0095693f99c88c70b7381d'}`)}
+        >
+        <img src="/men_essentials.jpeg" alt="" className='h-[466px] ' />
+        </div>
 
         <div className='flex justify-between items-center mt-3'>
           <span className='text-amber-900 text-lg font-semibold'>Blue Suit</span>
@@ -34,8 +48,13 @@ const TheEssentials = () => {
         </div>
       </div>
 
+      {/* perfume */}
       <div>
-        <img src="/perfume_01.webp" alt="" className='h-[466px] object-contain' />
+       <div className='flex items-center justify-center bg-white hover:scale-105 transition-all duration-300'
+       onClick={()=> navigate(`/user/product/${'69f1302e7e492d4ad06ab95e'}`)}
+       >
+        <img src="/perfume_01.webp" alt="" className='h-[466px] ' />
+        </div>
 
         <div className='flex justify-between items-center mt-3'>
           <span className='text-amber-950 text-lg font-semibold'>Blue Suit</span>
@@ -43,8 +62,14 @@ const TheEssentials = () => {
         </div>
       </div>
 
+      {/* boots */}
       <div>
-        <img src="/prada_boots.webp" alt="" className='h-[466px] object-contain' />
+       <div className='flex items-center justify-center bg-white hover:scale-105 transition-all duration-300'
+       onClick={()=> navigate(`/user/product/${'6a0095c03f99c88c70b73820'}`)}
+       >
+        <img src="/prada_boots.webp" alt="" className='h-[466px] ' />
+        </div>
+
 
         <div className='flex justify-between items-center mt-3'>
           <span className='text-black text-lg font-semibold'>Blue Suit</span>

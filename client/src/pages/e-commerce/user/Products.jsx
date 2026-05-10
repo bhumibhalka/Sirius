@@ -112,7 +112,9 @@ const Products = () => {
 
             <div className='space-y-2'>
               {/* image */}
-            <div className='bg-white rounded-lg hover:scale-103 transition-all duration-300'>
+            <div className='bg-white rounded-lg hover:scale-103 transition-all duration-300' 
+            onClick={() => navigate(`/user/product/${product._id}`)}
+            >
               <img src={product?.media?.[0]?.url} alt="img" className='h-[60vh] w-full object-contain '/>
             </div>
 

@@ -55,7 +55,10 @@ const HomePage = () => {
         </section>
     
 
+        <div className=''>
+
        <TheEssentials />
+        </div>
       
        {/* FOOTER */}
        <Footer />

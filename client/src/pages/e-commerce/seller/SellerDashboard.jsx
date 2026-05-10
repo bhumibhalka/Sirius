@@ -7,6 +7,8 @@ const SellerDashboard = () => {
 
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.auth);
+  const {products} = useSelector(state => state.product)
+  const orders = useSelector(state => state.seller.orders)
 
   const notificationColor = (priority) => {
     switch (priority) {
@@ -48,6 +50,24 @@ const SellerDashboard = () => {
     }
   }
 
+  const stats = [
+    {
+      title: "TOTAL SALES",
+      icon: DollarSign,
+      value: orders.reduce((acc, order) => acc + order.subtotal , 0)
+    },
+    {
+      title: "TOTAL PRODUCTS",
+      icon: Badge,
+      value: products.length,
+    },
+    {
+      title: "TOTAL ORDERS",
+      icon: ShoppingBag,
+      value: orders.length,
+    },
+
+  ]
 
   return (
     <div className='bg-black/80  mt-14 p-8 min-h-screen space-y-6 md:space-y-10 '>
@@ -62,17 +82,22 @@ const SellerDashboard = () => {
       {/* top */}
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
 
-        {/* TOTAL SELLS */}
-        <div className='card '>
+       {/* stats */}
+
+            {
+              stats.map((stat) => 
+                {
+                  const Icon = stat.icon;
+        return (   <div className='card ' key={stat.title}>
             <div className='card-header'>
               <div className='card-icon'>
-              <DollarSign className='font-bold text-white ' />
+              <Icon className='font-bold text-white ' />
               </div>
-              <h3 className='card-title'>TOTAL SALES</h3>
+              <h3 className='card-title'>{stat.title}</h3>
             </div>
 
             <div className='mt-4'>
-              <p className='card-value' >$50,000.00</p>
+              <p className='card-value' >{stat.value}</p>
             </div>
 
             <div
@@ -84,46 +109,10 @@ const SellerDashboard = () => {
             </div>
         </div>
 
-        {/* TOTAL PRODUCTS */}
-        <div className='card '>
-            <div className='card-header'>
-              <div className='card-icon'>
-              <Badge  className='font-bold text-white ' />
-              </div>
-              <h3 className='card-title'>TOTAL PRODUCTS</h3>
-            </div>
-
-              <p className='card-value' >124</p>
-
-            <div
-            className=''
-            >
-             {/* {user.totalsells(money) monthgy compare up or down using reduce function } */}
-
-              <p></p>
-            </div>
-        </div>
-
-        {/* TOTAL ORDERS */}
-        <div className='card '>
-            <div className='card-header'>
-              <div className='card-icon'>
-              <ShoppingBag className='font-bold text-white ' />
-              </div>
-              <h3 className='card-title'>TOTAL ORDERS</h3>
-            </div>
-
-              <p className='card-value' >1999</p>
+               ) })
+            }
 
 
-            <div
-            className=''
-            >
-             {/* {user.totalsells(money) monthgy compare up or down using reduce function } */}
-
-              <p></p>
-            </div>
-        </div>
 
       </div>
 

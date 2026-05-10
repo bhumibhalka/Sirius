@@ -40,7 +40,7 @@ const Menu = () => {
             <li className='hover:scale-105 transition-all duration-300'
             onClick={closeMenu}
             >
-              <Link to="/user/product/men">
+              <Link to="/user/products?category=Men">
             Mens
             </Link>
             </li>
@@ -48,7 +48,7 @@ const Menu = () => {
             <li className='hover:scale-105 transition-all duration-300'
             onClick={closeMenu}
             >
-              <Link to="/user/product/women">
+              <Link to="/user/products?category=Women">
             Women
             </Link>
             </li>
@@ -56,7 +56,7 @@ const Menu = () => {
             <li className='hover:scale-105 transition-all duration-300'
             onClick={closeMenu}
             >
-              <Link to="/user/product/statement">
+              <Link to="/user/products?category=Statement">
             Statement
             </Link>
             </li>
@@ -105,7 +105,7 @@ const Menu = () => {
             </li>
 
             <li className='hover:scale-105 transition-all duration-300'>
-              <Link to="/social-media/profile" onClick={closeMenu}>
+              <Link to={`/social/profile/${user.username}`} onClick={closeMenu}>
             Social Profile
             </Link>
             </li>
