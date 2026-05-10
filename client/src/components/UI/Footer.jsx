@@ -3,7 +3,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <footer className='border'>
+    <footer className='border bg-black text-white '>
 
    <div className='w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-5 mt-14 pb-6'>
 

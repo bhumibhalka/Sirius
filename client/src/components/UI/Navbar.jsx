@@ -21,6 +21,7 @@ const Navbar = () => {
             <li onClick={()=> navigate("/user/products?category=Men")}>Mens</li>
             <li onClick={()=> navigate("/user/products?category=Women")}>Women</li>
             <li onClick={()=> navigate("/user/products?category=Statement")}>Statement</li>
+            <li onClick={()=> navigate("/social")}>Social Media</li>
           </ul>
       </div>
 

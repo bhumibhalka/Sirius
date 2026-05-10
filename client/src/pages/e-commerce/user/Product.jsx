@@ -60,7 +60,7 @@ const Product = () => {
         </div>
 
         {/* image */}
-        <div className='bg-black'>
+        <div className='bg-black flex items-center justify-center'>
           <img src={product?.media?.[0]?.url} alt="product-image" className='h-[80vh] w-[60vw] object-contain ' />
         </div>
       </div>

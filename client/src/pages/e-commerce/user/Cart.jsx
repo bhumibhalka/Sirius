@@ -13,7 +13,7 @@ const Cart = () => {
 
   const [selectedItem, setSelectedItem] = useState(null)
 
-  const totalPrice = cartItems?.items?.reduce((acc, item) =>  acc + item?.productId?.variants?.[0]?.price, 0)
+  const totalPrice = cartItems?.items?.reduce((acc, item) =>  acc + item?.productId?.variants?.[0]?.price * item?.quantity , 0)
 
   useEffect(()=> {
   dispatch(getCartItems())

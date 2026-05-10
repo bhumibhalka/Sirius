@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchadminStats } from '../../store/slices/admin.slice';
 import {AlertCircle, AlertOctagon, BoxIcon, DollarSign, Loader, Users} from "lucide-react"
 import { Link } from 'react-router-dom';
+import { logout } from '../../store/slices/auth.slice';
 
 const AdminDashboard = () => {
   
@@ -52,19 +53,25 @@ const AdminDashboard = () => {
     dispatch(fetchadminStats({cursor: null}))
   },[])
 
+  const handleLogout = ( ) => {
+    dispatch(logout())
+  }
+
   if(loading || !metrics) {return <div className='flex items-center justify-center h-screen '> <Loader className='animate-spin' /> </div> 
   }
   return (
     <div className='p-4 space-y-6'>
 
       {/* navbar */}
-      <div className='bg-black h-16 text-white p-2'>
+      <div className='bg-black  text-white p-2'>
         <ul className='flex gap-4 '>
           <li className='font-semibold hover:scale-105 transition-all duration-300 hover:underline'> <Link to={'/admin/user-management'}> Manage Users</Link></li>
           <li className='font-semibold hover:scale-105 transition-all duration-300 hover:underline'><Link to={'/admin/order-management'}> Manage Orders</Link></li>
           <li className='font-semibold hover:scale-105 transition-all duration-300 hover:underline'><Link to={'/admin/product-management'}> Manage Products</Link></li>
           <li className='font-semibold hover:scale-105 transition-all duration-300 hover:underline'><Link> Manage Users</Link></li>
         </ul>
+
+        <button onClick={handleLogout}>logout</button>
       </div>
 
       {/* header */}
