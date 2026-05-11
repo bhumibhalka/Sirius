@@ -32,9 +32,9 @@ console.log(posts);
 console.log("user:",user);
 
 
-const getUserProfile = (id) => {
-  dispatch(getProfile())
-}
+// const getUserProfile = (id) => {
+//   dispatch(getProfile())
+// }
 
 const handleToggleComments = (post) => {
  setCurrentPost(post);
@@ -217,9 +217,11 @@ return (  <div
             <div className='flex  items-center justify-between '>
               <div className='flex items-center gap-2'>
                 <div className='bg-white inline-flex rounded-full'>
-                  <img src={post?.author?.avatar  } alt="img" className='object-cover size-8' />
+                  <img src={post?.author?.avatar ||'https://i.pravatar.cc/150?img=3'  } alt="img" className='object-cover size-8' />
                 </div>
-                <h3 onClick={() =>getUserProfile()}>{post?.author?.displayName}</h3>
+                <Link to={`/social/profile/${post?.author?.username}`}>
+                <h3 >{post?.author?.displayName}</h3>
+                </Link>
               </div>
 
               {/* buttons */}

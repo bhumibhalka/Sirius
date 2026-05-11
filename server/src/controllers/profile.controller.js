@@ -1,5 +1,6 @@
 import Profile from "../DBmodels/profile.model.js";
 import Follow from "../DBmodels/social-media/Follow.model.js";
+import Post from "../DBmodels/social-media/post.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import ErrorHandler from "../middlewares/error.middleware.js";
 import User from "../models/user.js";
@@ -22,10 +23,11 @@ export const getProfile = asyncHandler(async(req,res,next) => {
   // console.log("Found user:", userAuth);
   const targetUserId = String(userAuth.id); 
 
-  const [profile, followersCount, followingCount, isFollowing] = await Promise.all([
+  const [profile, followersCount, followingCount, postsCount , isFollowing] = await Promise.all([
     Profile.findOne({accountId: targetUserId}).lean(),
     Follow.countDocuments({followingId: targetUserId}),
     Follow.countDocuments({followerId: targetUserId}),
+    Post.countDocuments({authorId: targetUserId, isArchived: false}),
     Follow.exists({followerId: currentUserId, followingId: targetUserId})
   ])
 
@@ -37,6 +39,7 @@ export const getProfile = asyncHandler(async(req,res,next) => {
       stats: {
         followers: followersCount,
         following: followingCount,
+        posts: postsCount,
       },
       relationship: {
         isFollowing: !!isFollowing,

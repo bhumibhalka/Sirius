@@ -48,7 +48,7 @@ useEffect(()=>{
       <div className='flex items-center justify-between p-4 ' >
         <div className='flex gap-1'>
       <div>
-        <img src={currentPost?.author?.avatar} alt="img" className='size-6 object-cover rounded-full'/>
+        <img src={currentPost?.author?.avatar || "/men_essentails.jpeg" } alt="img" className='size-6 object-cover rounded-full'/>
       </div>
 
       <div>
