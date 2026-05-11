@@ -16,6 +16,7 @@ const Profile = () => {
   const {activeProfile, loading, error} = useSelector(state => state.profile)
   const {posts} = useSelector(state => state.post);
   const {isEditProfileOpen} = useSelector(state => state.popup);
+  const {library} = useSelector(state => state.save)
   // console.log(user);
   console.log(activeProfile);
   console.log('posts:', posts);
@@ -27,6 +28,18 @@ const Profile = () => {
   // const filteredPosts = posts?.filterPosts(post => {
   //   const matchesFilter = filterPosts === 'all' || post.
   // })
+
+  const filteredPosts = posts?.filter(post => {
+   if(filterPosts == 'all') { 
+    return true;
+   }
+
+   if(filterPosts === 'saved'){
+    return post?.isSaved;
+   }
+
+   return true;
+  })
 
   const openEditProfile = () => {
     dispatch(toggleEditProfileModal())
@@ -142,9 +155,9 @@ useEffect(() => {
      <div className='w-full max-w-6xl mx-auto grid grid-cols-3 mt-4'>
       
       {
-        posts && posts.length > 0 
+        filteredPosts && filteredPosts.length > 0 
         ? (
-          posts?.map((post) => (
+          filteredPosts?.map((post) => (
             <div
             key={post._id}
             className='bg-white'
