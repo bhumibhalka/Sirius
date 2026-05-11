@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom'
 import { toggleCommentModal, toggleSearchOpen, toggleUploadPost } from '../../store/slices/popup.slice'
 import AddPost from '../../components/popups/AddPost'
 import { useEffect } from 'react'
-import { clearFeed, fetchHomeFeed, likeToggleOptimistic, toggleLike } from '../../store/slices/social-media/post.slice'
+import { clearFeed, fetchHomeFeed, getUserPosts, likeToggleOptimistic, toggleLike } from '../../store/slices/social-media/post.slice'
 import { useCallback } from 'react'
-import { optimisticFollowToggle, toggleFollow, seedFollowStatus } from '../../store/slices/social-media/profile.slice'
+import { optimisticFollowToggle, toggleFollow, seedFollowStatus, getProfile } from '../../store/slices/social-media/profile.slice'
 import { fetchUsers } from '../../store/slices/social-media/user.slice'
 import SearchSidebar from '../../components/popups/SearchSidebar'
 import Comment from '../../components/popups/Comment'
@@ -32,6 +32,9 @@ console.log(posts);
 console.log("user:",user);
 
 
+const getUserProfile = (id) => {
+  dispatch(getProfile())
+}
 
 const handleToggleComments = (post) => {
  setCurrentPost(post);
@@ -216,7 +219,7 @@ return (  <div
                 <div className='bg-white inline-flex rounded-full'>
                   <img src={post?.author?.avatar  } alt="img" className='object-cover size-8' />
                 </div>
-                <h3>{post?.author?.displayName}</h3>
+                <h3 onClick={() =>getUserProfile()}>{post?.author?.displayName}</h3>
               </div>
 
               {/* buttons */}
