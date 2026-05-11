@@ -32,7 +32,7 @@ console.log('LOADING:', loading);
           >
            {
             post?.media?.[0]?.type === "images" && (
-              <img src={post?.media?.[0]?.url} alt="" className="w-full h-[130px] bg-white" />
+              <img src={post?.media?.[0]?.url} alt="" className="w-full h-[220px] bg-white" />
             )
            }
 

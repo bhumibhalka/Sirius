@@ -6,6 +6,7 @@ import Save from "../DBmodels/social-media/save.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import ErrorHandler from "../middlewares/error.middleware.js";
+import User from "../models/user.js";
 
 export const createPost = asyncHandler(async(req,res,next)=> {
   const {caption} = req.body;
@@ -72,8 +73,16 @@ function formatTimeAgo(date) {
 export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
   const userId = req.user.id;
   const { cursor, limit} = req.query;
-
+  const { username }= req.params;
   const limitNumber = Number(limit) || 10;
+
+  const user = await User.findOne({
+    where: {username}
+  })
+
+  if(!user){
+    return next(new ErrorHandler('User not found', 404))
+  }
 
   const query = {isArchived: false};
   // if(cursor) query.createdAt = {$lt: new Date(cursor)}
@@ -112,21 +121,34 @@ export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
 console.log("savedSet:", savedSet);
 console.log("postIds:", postIds);
 
-const [profiles, userLikes, followingList] = await Promise.all([
+const [profiles, users,userLikes, followingList] = await Promise.all([
   Profile.find({accountId: {$in: authorIds}}).select('accountId displayName avatar').lean(),
+
+  User.findAll({
+    where: {
+      id:authorIds
+    },
+    attributes: ['id', 'username'],
+    raw: true,
+  }),
   Like.find({userId, postId: {$in: postIds}}).select('postId').lean(),
   Follow.find({followerId: userId, followingId: {$in: authorIds}}).select('followingId').lean()
 ])
 
 const followingSet = new Set(followingList.map(f => f.followingId.toString()));
   const profileMap = profiles.reduce((acc, p) => ({...acc, [p.accountId] : p }), {});
+  const userMap = users.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  },{})
   const likedMap = new Set(userLikes.map(l => l.postId.toString()));
   // const savedMap = new Set(); // temporary
   // const savedMap = new Set(userSaves.map(s => s.postId.toString()));
 
   const hydratedFeed = posts.map(post => ({
     ...post,
-    author: profileMap[post.authorId] || {displayName: 'Deleted User', avatar: null},
+    author: {...(profileMap[post.authorId] || {}), 
+  username: userMap[post.authorId]?.username || null},
     likedByMe: likedMap.has(post._id.toString()),
     isSaved: savedSet.has(post._id.toString()),
     timeAgo: formatTimeAgo(post.createdAt),
@@ -222,5 +244,17 @@ export const getPosts = asyncHandler(async(req,res,next)=> {
     nextCursor,
     data: hydratedPosts
   })
+
+})
+
+export const getPost = asyncHandler(async(req,res,next)=> {
+  const {postId} = req.params;
+  const userId = req.user.id;
+
+  const post = await Post.find()
+  .sort({createdAt: -1})
+  .lean();
+
+
 
 })
