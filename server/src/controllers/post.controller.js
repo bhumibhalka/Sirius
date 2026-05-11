@@ -73,16 +73,8 @@ function formatTimeAgo(date) {
 export const fetchHomeFeed = asyncHandler(async(req,res,next)=> {
   const userId = req.user.id;
   const { cursor, limit} = req.query;
-  const { username }= req.params;
   const limitNumber = Number(limit) || 10;
 
-  const user = await User.findOne({
-    where: {username}
-  })
-
-  if(!user){
-    return next(new ErrorHandler('User not found', 404))
-  }
 
   const query = {isArchived: false};
   // if(cursor) query.createdAt = {$lt: new Date(cursor)}
@@ -169,8 +161,18 @@ const followingSet = new Set(followingList.map(f => f.followingId.toString()));
 })
 
 export const getUserPosts = asyncHandler(async(req,res,next) => {
+  const {username} = req.params;
   const {cursor , limit = 10} = req.query;
-  const authorId = req.user.id;
+
+  const user = await User.findOne({
+    where: {username}
+  })
+
+  if(!user) { 
+    return next(new ErrorHandler("User not found",404))
+  }
+
+  const authorId = user.id;
 
   const query = {
     authorId,

@@ -17,7 +17,7 @@ router.get(
 )
 
 router.get(
-  '/user/posts',
+  '/user/posts/:username',
   isAuthenticated,
   getUserPosts
 )

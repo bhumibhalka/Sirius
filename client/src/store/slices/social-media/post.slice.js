@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
 import { toggleSavePost } from "./save.slice";
+import { act } from "react";
 
 export const createPost = createAsyncThunk("createPost", async(data,thunkAPI) => {
   try {
@@ -30,13 +31,13 @@ export const fetchHomeFeed = createAsyncThunk("post/all-posts", async({cursor}, 
   }
 })
 
-export const getUserPosts = createAsyncThunk("post/user/posts", async(cursor, thunkAPI) => {
+export const getUserPosts = createAsyncThunk("post/user/posts", async(username, thunkAPI) => {
   try {
 
-    const url = cursor ? 
-    `/post/user/posts?cursor=${cursor}`
-    : '/post/user/posts'
-    const res = await axiosInstance.get(url);
+    // const url = username ? 
+    // `/post/user/posts?cursor=${cursor}`
+    // : '/post/user/posts'
+    const res = await axiosInstance.get(`/post/user/posts/${username}`);
     return res?.data;
   } catch (error) {
      toast.error(error?.response?.data?.message || 'Failed to fetch user posts');
@@ -161,7 +162,8 @@ const postSlice = createSlice({
    })
    .addCase(getUserPosts.fulfilled, (state, action) => {
     state.loading = false;
-    state.posts = [...state.posts, ...action.payload.data];
+    // state.posts = [...state.posts, ...action.payload.data];
+    state.posts = action.payload.data
     state.nextCursor = action.payload.nextCursor;
    })
    .addCase(getUserPosts.rejected, (state) => {

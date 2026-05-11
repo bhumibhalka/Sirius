@@ -68,7 +68,7 @@ const profileSlice = createSlice({
     state.followStatus[userId] = !state.followStatus[userId];
 
     // also update active profile if it's the same user
-    if (state.activeProfile && state.activeProfile._id === userId) {
+    if (state.activeProfile && state.activeProfile.accountId === userId) {
       const isFollowing = state.followStatus[userId];
 
       state.activeProfile.relationship.isFollowing = isFollowing;

@@ -36,7 +36,7 @@ useEffect(() => {
   if (username) {
     dispatch(resetProfilePosts()); // ✅ clear old feed posts
     dispatch(getProfile(username)); // profile info
-    dispatch(getUserPosts()); // ✅ fetch ONLY this user's posts
+    dispatch(getUserPosts(username)); // ✅ fetch ONLY this user's posts
   }
 }, [username]);
   return (
@@ -67,7 +67,7 @@ useEffect(() => {
         <div className='flex gap-4 items-center'>
           {/* Posts */}
           <div className='flex items-center gap-1 text-xs font-semibold'>
-            <p>{activeProfile?.stats?.followers  || 0}</p>
+            <p>{activeProfile?.stats?.posts  || 0}</p>
             <p>posts</p>
           </div>
           {/* Followers */}
