@@ -1,7 +1,7 @@
 import { LucideShoppingCart, Search, ShoppingBag, ShoppingCart, ShoppingCartIcon, Star } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import {  fetchProducts } from '../../../store/slices/product.slice';
+import {  fetchProducts, filterProducts } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -22,27 +22,34 @@ const Products = () => {
   // const [selectedVariants, setSelectedVariants] = useState({});
   // const [loadingMap, setLoadingMap] = useState({})
 
-  const filteredProducts = products?.filter((product)=> {
-    const matchesSearch = 
-    (product.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (product.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+  // const filteredProducts = products?.filter((product)=> {
+  //   const matchesSearch = 
+  //   (product.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   (product.description || '').toLowerCase().includes(searchQuery.toLowerCase())
 
-    // const matchesFilter = filteredCategory === 'all' || product.category === filteredCategory;
-
-    return matchesSearch;
-  })
+  //   return matchesSearch;
+  // })
 
   // const product = filteredProducts.category = category || filteredProducts
 
+
+  //  const filteredProducts = () => {
+  //   filteredProducts({search: searchQuery, category: filteredCategory , cursor: null })
+  //  }
+  
   const handleAddToCart = async(product) => {
    dispatch(addToCart({productId: product._id, quantity: 1}))
   }
 
   useEffect(()=> {
     if(user?.role === 'user'){
-      dispatch(fetchProducts(filteredCategory === 'all' ? '' : filteredCategory ))
+      dispatch(filterProducts({
+        search: searchQuery, 
+        category: filteredCategory === 'all' ? ''  : filteredCategory, 
+        cursor: null  
+      }))
     }
-  },[filteredCategory, dispatch,  user?.role])
+  },[searchQuery, filteredCategory, dispatch,  user?.role])
 
   return (
     <div className='bg-black text-white min-h-screen overflow-x-auto p-4 space-y-4 '>
@@ -102,9 +109,9 @@ const Products = () => {
     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mx-6'>
 
     {
-      filteredProducts && filteredProducts.length > 0 
+      products && products.length > 0 
       ? (
-        filteredProducts.map((product) => (
+        products.map((product) => (
           <div
           key={product._id}
           className='border-white border p-2 rounded-lg hover:scale-103 transition-all duration-300'

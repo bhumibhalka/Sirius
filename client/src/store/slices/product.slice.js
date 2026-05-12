@@ -77,6 +77,17 @@ export const getProduct = createAsyncThunk("getProduct", async(id, thunkAPI)=> {
   }
 })
 
+export const filterProducts = createAsyncThunk("filterProducts", async({cursor,search, category}, {rejectWithValue}) => {
+  try {
+    const res = await axiosInstance.get(`/product/filter?search=${search || ''}&category=${category || ''}&cursor=${cursor || ''}`);
+    return res?.data;
+  } catch (error) {
+    toast.error(error?.response?.data || 'Failed to filter products')
+    console.log('error:',error);
+    return rejectWithValue(error?.response?.data)
+  }
+})
+
 
 const productSlice = createSlice({
   name: "product",
@@ -149,6 +160,17 @@ const productSlice = createSlice({
     state.product = action.payload;
   })
   .addCase(getProduct.rejected, (state)=> {
+    state.loading = false;
+  })
+  .addCase(filterProducts.pending , (state) => {
+    state.loading = true;
+  })
+  .addCase(filterProducts.fulfilled, (state, action)=> {
+    state.loading = false;
+    state.products = action.payload?.data;
+    state.nextCursor = action.payload?.nextCursor;
+  })
+  .addCase(filterProducts.rejected, (state) => {
     state.loading = false;
   })
 

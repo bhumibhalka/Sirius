@@ -62,7 +62,7 @@ export const fetchSellerProducts = asyncHandler(async(req,res,next) => {
    const userId = req.user.id;
 // console.log("user id",req.user)
 // console.log("user id",req.user.id)
-   const products = await Product.find({sellerId: userId}).sort({createdaAt: -1});
+   const products = await Product.find({sellerId: userId}).sort({createdAt: -1});
 
   //  console.log(products);
   return res.status(200).json({
@@ -161,6 +161,37 @@ export const getProduct = asyncHandler(async(req,res,next)=> {
     product,
   })
 
+})
+
+export const filterProducts = asyncHandler(async(req,res,next) => {
+  const {category, search, cursor, limit = 10} = req.query;
+
+  const query = {};
+
+  if(category) query.category = category;
+
+  if(search) {
+    query.$or = [
+      {title: {$regex: search, $options: 'i'}},
+      {description: {$regex: search, $options: 'i'}}
+    ]
+  }
+
+  if(cursor) query.createdAt = {$lt : new Date(cursor)}
+
+  const products = await Product.find(query)
+  .sort({createdAt: -1})
+  .limit(Number(limit))
+  .lean();
+
+ const nextCursor = products.length === Number(limit) ? products[products.length - 1] : null;
+
+ res.status(200).json({
+  success: true,
+  data: products,
+  nextCursor,
+ })
+ 
 })
 
 // export const editProduct = asyncHandler(async(req,res,next)=> {
