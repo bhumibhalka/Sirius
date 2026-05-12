@@ -17,6 +17,7 @@ const Menu = () => {
    
    const handleLogout = () => {
     dispatch(logout())
+    closeMenu()
    }
 
   return (

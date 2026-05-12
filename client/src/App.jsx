@@ -26,6 +26,7 @@ import UserManagement from './pages/admin/UserManagement'
 import OrdersManagement from './pages/admin/OrdersManagement'
 import ProductManagement from './pages/admin/ProductManagement'
 import AdminLayout from './components/layout/AdminLayout'
+import { Loader } from 'lucide-react'
 
 
 const getHomeRoute = (role) => {
@@ -79,7 +80,12 @@ const App = () => {
       }
     },[user?.role, dispatch])
     
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className='flex flex-col items-center justify-center h-screen'>
+      
+      <Loader className='animate-spin' size={28} />
+    <p className='font-semibold'>Loading...</p>  
+      
+      </div>;
     
   return (
     <Routes >

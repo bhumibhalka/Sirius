@@ -1,5 +1,5 @@
 import express from 'express'
-import { addProduct, deleteProduct, editProduct, fetchSellerProducts, getProduct, getProducts} from '../controllers/product.controller.js';
+import { addProduct, deleteProduct, editProduct, fetchSellerProducts, filterProducts, getProduct, getProducts} from '../controllers/product.controller.js';
 import { isAuthenticated, isAuthorized } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
@@ -39,11 +39,17 @@ router.get(
 )
 
 router.get(
+  '/filter',
+  isAuthenticated,
+  filterProducts,
+)
+
+
+router.get(
   '/:id',
   isAuthenticated,
   getProduct
 )
-
 // router.post(
 //   '/add-product',
 //   isAuthenticated,

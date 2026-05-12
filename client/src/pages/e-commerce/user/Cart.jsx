@@ -56,7 +56,7 @@ const Cart = () => {
 
                 <div >
                   <h3 className='font-semibold'>{item?.productId?.title}</h3>
-                  <p className='text-xs'>{item?.productId?.description.slice(0,50)}</p>
+                  <p className='text-xs'>{item?.productId?.description?.slice(0,50) || "No description" }</p>
                 </div>
                 </div>
 
