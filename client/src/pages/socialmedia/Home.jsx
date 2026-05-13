@@ -1,4 +1,4 @@
-import { Bookmark, EllipsisVertical, Heart, HomeIcon, MessageCircle, Plus, Search, Share, User2Icon, UserIcon, Video, VideoIcon } from 'lucide-react'
+import { Bookmark, EllipsisVertical, Heart, HomeIcon, Loader, MessageCircle, Plus, Search, Share, User2Icon, UserIcon, Video, VideoIcon } from 'lucide-react'
 import React from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,7 +20,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.auth)
   const {isUploadPostModalOpen, isSearchOpen, isCommentOpen} = useSelector(state => state.popup)
-  const {posts, nextCursor, status, isRefreshing} = useSelector(state => state.post);
+  const {homeFeedPosts, nextCursor, status, isRefreshing, loading} = useSelector(state => state.post);
   const {followStatus} = useSelector(state => state.profile)
   const {library} = useSelector(state => state.save)
   const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
@@ -28,7 +28,7 @@ const Home = () => {
   const [images, setImages] = useState([])
   const [search, setSearch] = useState("");
  const [currentPost, setCurrentPost] = useState(null);
-console.log(posts);
+console.log(homeFeedPosts);
 console.log("user:",user);
 
 
@@ -58,7 +58,7 @@ const handleToggleComments = (post) => {
   
 
  useEffect(() => {
-  if (posts.length === 0) {
+  if (homeFeedPosts.length === 0) {
     dispatch(fetchHomeFeed({ cursor: null })).then((action) => {
       if (action.payload?.followingSet) {
         dispatch(seedFollowStatus(action.payload.followingSet));
@@ -131,6 +131,15 @@ useEffect(() => {
   useEffect(()=> {
     dispatch(fetchSavedPost({cursor : null }))
   },[])
+
+//   if(isRefreshing) {
+//  return (
+//   <div className='flex flex-col items-center justify-center h-screen'>
+//     <Loader className='animate-spin size-8' />
+//     <p className='font-semibold'>Loading...</p>
+//   </div>
+//  )
+//   }
   
   return (
     <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
@@ -202,14 +211,25 @@ useEffect(() => {
       {/* posts */}
      <div className='space-y-2'>
        {
-        posts && posts.length > 0 ? (
-        posts.map((post)=> 
+        isRefreshing && (
+          <div className='flex items-center justify-center p-2 w-full'>
+            <Loader className='animate-spin' />
+          </div>
+        )
+       }
+
+       {
+        homeFeedPosts && homeFeedPosts.length > 0 ? (
+        homeFeedPosts.map((post)=> 
           
           {
               const following = followStatus[post?.authorId] ?? false;
 
              const isSaved = post.isSaved;
-return (  <div
+return (
+
+  
+    <div
           key={post._id}
           className='p-4 space-y-4'
           >

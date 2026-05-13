@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getCartItems } from '../../../store/slices/cart.slice';
 import { useNavigate } from 'react-router-dom';
@@ -11,13 +11,33 @@ const Cart = () => {
   const {user} = useSelector(state => state.auth)
   console.log(cartItems);
 
-  const [selectedItem, setSelectedItem] = useState(null)
 
-  const totalPrice = cartItems?.items?.reduce((acc, item) =>  acc + item?.productId?.variants?.[0]?.price * item?.quantity , 0)
+  const totalPrice = useMemo(()=> {
+   return cartItems?.items?.reduce((acc, item) =>  acc + item?.productId?.variants?.[0]?.price * item?.quantity , 0)
+  }, [cartItems]) 
 
-  useEffect(()=> {
+   useEffect(()=> {
   dispatch(getCartItems())
   },[])
+
+  // stable navigation callback
+  const naviagteToProduct = useCallback((productId) => {
+    navigate(`/user/product/${productId}`)
+  }, [navigate])
+
+  const handleCheckout = useCallback(()=> {
+   navigate(`/user/checkout`)
+  },[navigate])
+
+  if(loading) { 
+    return ( 
+      <div className='bg-black min-h-screen text-white p-6'>
+        <p>Loading cart...</p>
+      </div>
+    )
+  }
+
+
 
   return (
     <div className='bg-black min-h-screen text-white p-4 md:px-8 space-y-6'>
@@ -37,7 +57,7 @@ const Cart = () => {
               <div 
               key={item._id}
               className=' p-6 rounded-lg shadow bg-white text-black relative hover:cursor-pointer'
-              onClick={()=> navigate(`/user/product/${item?.productId._id}`)}
+              onClick={() => naviagteToProduct()}
               >
                {/* {
                 loading ? (<div>Loading...</div>) : (
@@ -104,10 +124,11 @@ const Cart = () => {
 
        </div>
 
+        {/* checkout */}
        <div>
         <button
          className='btn'
-         onClick={() => navigate('/user/checkout')}
+         onClick={handleCheckout}
         >
           Place Order
         </button>

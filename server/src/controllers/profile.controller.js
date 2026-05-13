@@ -1,6 +1,7 @@
 import Profile from "../DBmodels/profile.model.js";
 import Follow from "../DBmodels/social-media/Follow.model.js";
 import Post from "../DBmodels/social-media/post.model.js";
+import cloudinary from "../lib/cloudinary.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import ErrorHandler from "../middlewares/error.middleware.js";
 import User from "../models/user.js";
@@ -31,11 +32,21 @@ export const getProfile = asyncHandler(async(req,res,next) => {
     Follow.exists({followerId: currentUserId, followingId: targetUserId})
   ])
 
+  // const normalizedAvatar = profile?.avatar;
+
+  // if(typeof normalizedAvatar === "string"){
+  //   normalizedAvatar = {
+  //     public_id: "",
+  //     url: normalizedAvatar
+  //   }
+  // }
+
   res.status(200).json({
     success: true,
     data: {
       ...userAuth.toJSON(),
       ...profile,
+      // avatar: normalizedAvatar,
       stats: {
         followers: followersCount,
         following: followingCount,
@@ -88,8 +99,32 @@ export const getProfile = asyncHandler(async(req,res,next) => {
 
 
 export const updateProfile = asyncHandler(async(req,res,next) => {
-  const {username, displayName, bio, avatar, location} = req.body;
+  const {username, displayName, bio, location} = req.body;
+  // const {avatar} = req.files;
   const userId = req.user.id;
+
+  let avatarData = {};
+
+  console.log("avatar",req.files.avatar);
+
+  try {
+     if(req.files && req.files.avatar){
+  
+    const result = await cloudinary.uploader.upload(req.files.avatar.tempFilePath,{
+      folder: "profile_avatars"
+    } );
+
+    avatarData = {
+      public_id : result.public_id,
+      url: result.secure_url,
+    }
+  }
+  } catch (error) {
+    return next(new ErrorHandler(error.message || 'Cloudinary upload failed', 500))
+  }
+ 
+
+  
 
   if(username){
     const existingUser = await User.findOne({ where: {username} });
@@ -108,12 +143,14 @@ export const updateProfile = asyncHandler(async(req,res,next) => {
       $set:{ 
         displayName,
         bio,
-        avatar,
         location,
+         ...(Object.keys(avatarData).length > 0 && {
+            avatar: avatarData
+         } ),
         lastUpdated: Date.now()
       }
     },
-    {new: true, runValidators: true}
+    {new: true, runValidators: true,  upsert: true}
   );
 
   res.status(200).json({

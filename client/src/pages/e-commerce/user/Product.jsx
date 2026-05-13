@@ -1,37 +1,74 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { getProduct } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
+import { Loader } from 'lucide-react';
 
 const Product = () => {
 
   const dispatch = useDispatch();
-  const {product} = useSelector(state => state.product) 
+  const product = useSelector(state => state.product.product); 
   const {id} = useParams();
 
-  const handleAddToCart =() => {
-    dispatch(addToCart({productId: product._id, quantity: 1}))
-  }
+  useEffect(()=> {
+    if(id) {
+      dispatch(getProduct(id));
+    }
+  },[id, dispatch])
 
-  const stats = [
+  // memoized product values
+  const productImage  = useMemo(()=> {
+    return product?.media?.[0]?.url || '';
+  },[product])
+
+  const productPrice = useMemo(() => {
+   return product?.variants?.[0]?.price || 0;
+  }, [product])
+
+  //stable add to CART functioN
+
+  const handleAddToCart = useCallback(()=> {
+
+    if(!product?._id) return;
+
+    dispatch(
+      addToCart({
+      productId: product._id,
+      quantity:  1,
+    })
+  )
+
+  },[dispatch, product])
+
+  
+ // static data memoized
+   const stats = useMemo(() => [
     {
       title: 'Trusted Luxury Brands',
-      description: 'We partner only with globally recognized luxury brands, ensuring every product meets the highest standards of authenticity and excellence.',
+      description:
+        'We partner only with globally recognized luxury brands, ensuring every product meets the highest standards of authenticity and excellence.',
     },
     {
       title: 'Finest Materials',
-      description: 'Each product is crafted using premium-quality materials, carefully selected for durability, comfort, and a refined finish.',
+      description:
+        'Each product is crafted using premium-quality materials, carefully selected for durability, comfort, and a refined finish.',
     },
     {
       title: 'Expert Craftsmanship',
-      description: 'Designed and perfected by skilled artisans, every piece reflects precision, attention to detail, and timeless craftsmanship.',
+      description:
+        'Designed and perfected by skilled artisans, every piece reflects precision, attention to detail, and timeless craftsmanship.',
     },
-  ]
+  ], [])
 
-  useEffect(()=>{
-    dispatch(getProduct(id))
-  },[id ,dispatch])
+  if(!product) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <Loader className='animate-spin' />
+        <p>Loading product...</p>
+      </div>
+    )
+  }
 
 
 
@@ -48,12 +85,12 @@ const Product = () => {
           </div>
 
           <p>{product?.description}</p>
-          <h2 className='text-lg font-semibold'>${product?.variants?.[0]?.price}</h2>
+          <h2 className='text-lg font-semibold'>${productPrice}</h2>
         </div>
 
         <button
         className='bg-black text-white w-full py-2 rounded-lg mt-4 hover:scale-103 transition-all duration-300 font-semibold'
-        onClick={()=> handleAddToCart()}
+        onClick={ handleAddToCart}
         >
           Add To Cart
           </button>
@@ -61,7 +98,7 @@ const Product = () => {
 
         {/* image */}
         <div className='bg-black flex items-center justify-center'>
-          <img src={product?.media?.[0]?.url} alt="product-image" className='h-[80vh] w-[60vw] object-contain ' />
+          <img src={productImage} alt="product-image" className='h-[80vh] w-[60vw] object-contain ' />
         </div>
       </div>
 

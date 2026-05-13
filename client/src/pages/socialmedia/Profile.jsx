@@ -14,12 +14,13 @@ const Profile = () => {
   const navigate = useNavigate();
   const {user} = useSelector(state => state.auth)
   const {activeProfile, loading, error} = useSelector(state => state.profile)
-  const {posts} = useSelector(state => state.post);
+  const {userPosts} = useSelector(state => state.post);
   const {isEditProfileOpen} = useSelector(state => state.popup);
   const {library} = useSelector(state => state.save)
   // console.log(user);
+  console.log('library:',library);
   console.log(activeProfile);
-  console.log('posts:', posts);
+  console.log('posts:', userPosts);
   const {username} = useParams();
 
   const [filterPosts, setFilterPost] = useState('all')
@@ -29,17 +30,9 @@ const Profile = () => {
   //   const matchesFilter = filterPosts === 'all' || post.
   // })
 
-  const filteredPosts = posts?.filter(post => {
-   if(filterPosts == 'all') { 
-    return true;
-   }
+  const filteredPosts = filterPosts === "saved" ? library : userPosts;
 
-   if(filterPosts === 'saved'){
-    return post?.isSaved;
-   }
-
-   return true;
-  })
+  console.log(filteredPosts);
 
   const openEditProfile = () => {
     dispatch(toggleEditProfileModal())
@@ -64,7 +57,8 @@ useEffect(() => {
       {/* profile info */}
       <div className='flex gap-6'>
       <div className='bg-white '>
-        <img src={activeProfile?.avatar || "/men_essentails.jpeg"} alt="img" className='size-18 rounded-full object-cover'/>
+        <img    src={ activeProfile?.avatar?.url}
+alt="img" className='size-18 rounded-full object-cover'/>
       </div>
       <div className='space-y-2'>
         <div>
@@ -160,11 +154,13 @@ useEffect(() => {
           filteredPosts?.map((post) => (
             <div
             key={post._id}
-            className='bg-white'
+            className='bg-white flex'
             >
               {
               post?.media?.[0]?.type === 'images' && (
-                <img src={post?.media?.[0]?.url} alt="post" className='object-contain ' />
+
+                  <img src={post?.media?.[0]?.url} alt="post" className='object-cover ' />
+
               )
               }
             </div>
