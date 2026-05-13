@@ -12,7 +12,7 @@ const AddPost = () => {
 
   const  [caption, setCaption] = useState('')
   const [media, setMedia] = useState([])
-  const {posts, loading} = useSelector(state => state.post);
+  const {loading, isUploading} = useSelector(state => state.post);
 
   const closeModal = () => {
    dispatch(toggleUploadPost())
@@ -103,9 +103,9 @@ const AddPost = () => {
         <button
         type='submit'
         className='btn-black'
-        disabled={loading}
+        disabled={isUploading}
         >
-          {loading ? "Uploading..." : "Upload"}
+          {isUploading ? "Uploading..." : "Upload"}
         </button>
        </div>
     </form>

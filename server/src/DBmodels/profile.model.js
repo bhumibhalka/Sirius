@@ -16,8 +16,14 @@ const profileScehma = new mongoose.Schema({
     index: true,
   },
   avatar: {
+   public_id: {
+    type:String,
+    default: "",
+   },
+   url: {
     type:String,
     default: "https://cdn.example.com/assets/default-avatar.png"
+   }
   },
   coverImage: {
     type:String,
@@ -50,14 +56,14 @@ const profileScehma = new mongoose.Schema({
     index: true,//HELPS AI RECOMMENDATION ENGINE FILTER FEEDS
   }],
   preferences: {
-    language: {type: String, deafult: 'en'},
-    theme: {type:String, enum:['light', 'dark','system'], deafult: 'system'}
+    language: {type: String, default: 'en'},
+    theme: {type:String, enum:['light', 'dark','system'], default: 'system'}
   },
   // Links to other domains (Gamification & Fintech)
   loyaltyTier :{
     type: String,
     enum: ['bronze', 'silver', 'gold', 'platinum'],
-    deafult: 'bronze',
+    default: 'bronze',
   },
   socialLinks: {
     website: String,

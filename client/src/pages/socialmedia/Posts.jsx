@@ -7,8 +7,8 @@ import { fetchAllPosts } from '../../store/slices/social-media/post.slice';
 const Posts = () => {
 
   const dispatch = useDispatch();
-  const {posts, loading} = useSelector(state => state.post);
-   console.log('POSTS FROM STORE:', posts);
+  const {userPosts, loading} = useSelector(state => state.post);
+   console.log('POSTS FROM STORE:', userPosts);
 console.log('LOADING:', loading);
   useEffect(()=>{
     dispatch(fetchAllPosts(null)).then((result) => {
@@ -24,8 +24,8 @@ console.log('LOADING:', loading);
       
     <div className='grid grid-cols-3 flex-1'>
      {
-      posts && posts.length > 0 ? (
-        posts.map(post => (
+      userPosts && userPosts.length > 0 ? (
+        userPosts.map(post => (
           <div
           key={post._id}
           className=" bg-white border hover:scale-105 transition-all duration-300  h-[130px] "

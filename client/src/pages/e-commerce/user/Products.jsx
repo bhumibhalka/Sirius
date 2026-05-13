@@ -1,5 +1,5 @@
 import { LucideShoppingCart, Search, ShoppingBag, ShoppingCart, ShoppingCartIcon, Star } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {  fetchProducts, filterProducts } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
@@ -9,47 +9,117 @@ const Products = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const {user} = useSelector(state => state.auth);
+
   const {products} = useSelector(state => state.product)
-  console.log(products);
+  // console.log(products);
   
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const category = queryParams.get('category')
+
+  // MEMOIZED QUERY PARAM PARSING   
+
+  const categoryFromURL = useMemo(()=>{
+    const queryParams = new URLSearchParams(
+      location.search
+    );
+
+    return queryParams.get("category") || "all";
+  },[location.search])
+ 
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCategory, setfilteredCategory] = useState(category || 'all');
-  // const [selectedVariants, setSelectedVariants] = useState({});
-  // const [loadingMap, setLoadingMap] = useState({})
+  const [filteredCategory, setfilteredCategory] = useState(categoryFromURL);
 
-  // const filteredProducts = products?.filter((product)=> {
-  //   const matchesSearch = 
-  //   (product.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //   (product.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+  // DEFERRED SEARCH VALUE              
 
-  //   return matchesSearch;
-  // })
+  const deferredSearch = useDeferredValue(searchQuery);
 
-  // const product = filteredProducts.category = category || filteredProducts
+  //  MEMOIZED FILTER PAYLOAD      
+
+  const filterPayload = useMemo(()=>{
+    return {
+      search: deferredSearch,
+      category: 
+      filteredCategory === "all"
+      ? ""
+      : filteredCategory,
+      cursor: null,
+    }
+  },[deferredSearch, filteredCategory])
+
+  // FETCH PRODUCTS       
+
+  useEffect(() => {
+    if(user?.role === "user") {
+      const timeout = setTimeout(()=> {
+        dispatch(filterProducts(filterPayload))
+      },400);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [dispatch, filterPayload, user?.role])
+
+  // MEMOIZED HANDLERS               
+
+  const handleAddToCart = useCallback((product)=> {
+    // if(!product) return;
+
+    dispatch(addToCart({
+      productId : product._id,
+      quantity: 1,
+    }))
+  },[ dispatch])
 
 
-  //  const filteredProducts = () => {
-  //   filteredProducts({search: searchQuery, category: filteredCategory , cursor: null })
-  //  }
-  
-  const handleAddToCart = async(product) => {
-   dispatch(addToCart({productId: product._id, quantity: 1}))
+  const handleNavigate = useCallback((id) => {
+    navigate(`/user/product/${id}`)
+  },[navigate])
+
+ const handleCategoryChange = useCallback((e)=> {
+  const value = e.target.value;
+
+  setfilteredCategory(value);
+
+  navigate(
+    value === 'all'
+    ? '/user/products'
+    :`/user/products?category=${value}`
+  )
+ },[navigate])
+
+ const handleSearchChange = useCallback((e) => {
+  setSearchQuery(e.target.value);
+ },[])
+
+// MEMOIZED PRODUCT GRID   
+// avoids recalculating map     
+
+ const renderedProducts = useMemo(()=> {
+  if(!products?.length) {
+    return (
+      <div>
+      <p>No products found!!!</p>
+      </div>
+    )
   }
 
-  useEffect(()=> {
-    if(user?.role === 'user'){
-      dispatch(filterProducts({
-        search: searchQuery, 
-        category: filteredCategory === 'all' ? ''  : filteredCategory, 
-        cursor: null  
-      }))
-    }
-  },[searchQuery, filteredCategory, dispatch,  user?.role])
+  return products.map((product) => {
+    
+  })
+ })
+
+
+
+   // useEffect(()=> {
+  //   if(user?.role === 'user'){
+  //     dispatch(filterProducts({
+  //       search: searchQuery, 
+  //       category: filteredCategory === 'all' ? ''  : filteredCategory, 
+  //       cursor: null  
+  //     }))
+  //   }
+  // },[searchQuery, filteredCategory, dispatch,  user?.role])
 
   return (
     <div className='bg-black text-white min-h-screen overflow-x-auto p-4 space-y-4 '>

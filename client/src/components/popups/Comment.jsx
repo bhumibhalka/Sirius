@@ -7,7 +7,6 @@ import { toggleCommentModal } from '../../store/slices/popup.slice';
 const Comment = ({post}) => {
 
   const dispatch = useDispatch();
-  const {posts} = useSelector(state => state.post);
   const {items, isSubmitting} = useSelector(state => state.comment)
   const { isCommentOpen } = useSelector(state => state.popup)
 

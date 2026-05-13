@@ -81,18 +81,26 @@ const postSlice = createSlice({
   name: 'post',
   initialState: {
     loading : false,
-    posts: [],
+    homeFeedPosts: [],
+    userPosts: [],
     nextCursor: null,
     error: null,
     isRefreshing: false,
     status: 'idle',
     comments: [],
+    isUploading: false,
   },
   reducers: {
+    incrementCommentCount: (state, action) => {
+      const {postId, parentId} = action.payload;
+      
+      // only increase for the top-level comments
+      
+    },
     // Optimistic UI Update: Heart turns red immediately when clicked
     toggleLikeOptimistic: (state, action) => {
       const {postId } = action.payload;
-      const post = state.posts.find(p => p._id === postId);
+      const post = state.homeFeedPosts.find(p => p._id === postId);
       if(post){
         post.likedByMe = !post.likedByMe;
         post.stats.likeCount += post.likedByMe ? 1 : -1 ;
@@ -101,22 +109,22 @@ const postSlice = createSlice({
     // Optimistic UI Update: Bookmark toggle
     toggleSaveOptimistic: (state, action) => {
       const { postId } = action.payload;
-      const post = state.posts.find(p => p._id === postId);
+      const post = state.homeFeedPosts.find(p => p._id === postId);
       if(post){
         post.isSaved = !post.isSaved;
       }
     },
     clearFeed: (state) => {
-      state.posts = [];
+      state.homeFeedPosts = [];
       state.nextCursor = null;
     },
     resetProfilePosts: (state) => {
-      state.posts = [],
+      state.homeFeedPosts = [],
       state.nextCursor = null;
     },
     likeToggleOptimistic: (state, action) => {
       const {postId} = action.payload;
-      const post = state.posts.find((p) => p._id === postId);
+      const post = state.homeFeedPosts.find((p) => p._id === postId);
 
       if(post) {
         post.likedByMe = !post.likedByMe;
@@ -129,32 +137,36 @@ const postSlice = createSlice({
   extraReducers: (builder) => {
    builder
    .addCase(createPost.pending, (state)=> {
-    state.loading = true;
+    state.isUploading = true;
    })
    .addCase(createPost.fulfilled, (state, action)=> {
-    state.loading = false;
-    state.posts.unshift(action.payload); //newest on top
+    state.isUploading = false;
+    state.homeFeedPosts.unshift(action.payload); //newest on top
+    state.userPosts = [... state.userPosts ,...action.payload]
    })
    .addCase(createPost.rejected, (state)=> {
-    state.loading = false;
+    state.isUploading = false;
    })
    .addCase(fetchHomeFeed.pending, (state)=> {
-    state.loading = 'loading';
+    // state.loading = 'loading';
+    state.isRefreshing = true;
    })
    .addCase(fetchHomeFeed.fulfilled, (state, action) => {
-    state.loading = 'succeeded';
+    // state.loading = 'succeeded';
+     state.isRefreshing = false;
       const newPosts = action.payload.data; // ✅ ADDED
 
-  const existingIds = new Set(state.posts.map(p => p._id)); // ✅ ADDED
+  const existingIds = new Set(state.homeFeedPosts.map(p => p._id)); // ✅ ADDED
 
   const filteredPosts = newPosts.filter(
     p => !existingIds.has(p._id)
   ); 
-    state.posts = [...state.posts, ...filteredPosts]; 
+    state.homeFeedPosts = [...state.homeFeedPosts, ...filteredPosts]; 
     state.nextCursor = action.payload.nextCursor;
    })
    .addCase(fetchHomeFeed.rejected, (state, action) => {
-    state.loading = false;
+    // state.loading = false;
+     state.isRefreshing = false;
     state.error = action.payload?.message;
    })
    .addCase(getUserPosts.pending, (state) => {
@@ -163,7 +175,7 @@ const postSlice = createSlice({
    .addCase(getUserPosts.fulfilled, (state, action) => {
     state.loading = false;
     // state.posts = [...state.posts, ...action.payload.data];
-    state.posts = action.payload.data
+    state.userPosts = action.payload.data
     state.nextCursor = action.payload.nextCursor;
    })
    .addCase(getUserPosts.rejected, (state) => {
@@ -186,7 +198,7 @@ const postSlice = createSlice({
    .addCase(fetchAllPosts.fulfilled, (state, action)=> {
     state.loading = false;
     // state.posts = [...state.posts, ...action.payload.data];
-    state.posts = action.payload?.data;
+    state.homeFeedPosts = action.payload?.data;
     state.nextCursor = action.payload?.nextCursor;
    })
    .addCase(fetchAllPosts.rejected, (state)=> {
@@ -194,7 +206,7 @@ const postSlice = createSlice({
    })
    .addCase(toggleLike.rejected, (state, action) => {
     const {postId} = action.payload;
-    const post = state.posts.find((p)=> p._id === postId);
+    const post = state.homeFeedPosts.find((p)=> p._id === postId);
 
     if(post) {
       post.likedByMe = !post.likedByMe;
@@ -205,7 +217,7 @@ const postSlice = createSlice({
    .addCase(toggleSavePost.fulfilled, (state, action) => {
   const { post, isSaved } = action.payload;
 
-  const existingPost = state.posts.find(p => p._id === post._id);
+  const existingPost = state.homeFeedPosts.find(p => p._id === post._id);
   if (existingPost) {
     existingPost.isSaved = isSaved;
   }
