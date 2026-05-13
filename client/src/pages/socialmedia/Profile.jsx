@@ -2,11 +2,12 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProfile } from '../../store/slices/social-media/profile.slice';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Bookmark, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
+import { Bookmark, Ellipse, Ellipsis, EllipsisVertical, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
 import { useState } from 'react';
 import EditProfile from '../../components/popups/EditProfile';
 import { toggleEditProfileModal } from '../../store/slices/popup.slice';
 import { getUserPosts, resetProfilePosts } from '../../store/slices/social-media/post.slice';
+import { fetchSavedPost } from '../../store/slices/social-media/save.slice';
 
 const Profile = () => {
 
@@ -17,10 +18,10 @@ const Profile = () => {
   const {userPosts} = useSelector(state => state.post);
   const {isEditProfileOpen} = useSelector(state => state.popup);
   const {library} = useSelector(state => state.save)
-  // console.log(user);
+  console.log("user",user);
   console.log('library:',library);
-  console.log(activeProfile);
-  console.log('posts:', userPosts);
+  console.log("activeProfile",activeProfile);
+  // console.log('posts:', userPosts);
   const {username} = useParams();
 
   const [filterPosts, setFilterPost] = useState('all')
@@ -40,11 +41,14 @@ const Profile = () => {
 
 useEffect(() => {
   if (username) {
+      console.log("USE EFFECT RUNNING");
     dispatch(resetProfilePosts()); // ✅ clear old feed posts
     dispatch(getProfile(username)); // profile info
     dispatch(getUserPosts(username)); // ✅ fetch ONLY this user's posts
+    console.log("fetching saved posts");
+    dispatch(fetchSavedPost({cursor: null}))
   }
-}, [username]);
+}, [username, dispatch]);
   return (
     <div className='bg-black min-h-screen p-6 text-white'>
      
@@ -56,36 +60,37 @@ useEffect(() => {
 
       {/* profile info */}
       <div className='flex gap-6'>
-      <div className='bg-white '>
+      <div className='  '>
         <img    src={ activeProfile?.avatar?.url}
-alt="img" className='size-18 rounded-full object-cover'/>
+alt="img" className='size-18   rounded-full object-cover   '/>
       </div>
       <div className='space-y-2'>
         <div>
         <div className='flex gap-2 items-center'>
-          <h3 className='text-xl font-semibold'>{activeProfile?.displayName}</h3>
-          <Settings  className='size-5' onClick={() => navigate('/settings')}/>
+          <h3 className='text-2xl font-bold'>{activeProfile?.displayName}</h3>
+          <Settings  className={`size-5 ${activeProfile?.relationship?.isSelf ? "block" : "hidden"}`} onClick={() => navigate('/settings')}/>
+            <Ellipsis className={`${activeProfile?.relationship?.isSelf ? "hidden" : "block"}`} />
           </div>
         
-        <p className='text-xs'>{activeProfile?.username}</p>
+        <p >{activeProfile?.username}</p>
         </div>
 
         {/* stats */}
         <div className='flex gap-4 items-center'>
           {/* Posts */}
-          <div className='flex items-center gap-1 text-xs font-semibold'>
-            <p>{activeProfile?.stats?.posts  || 0}</p>
-            <p>posts</p>
+          <div className='flex items-center gap-1 '>
+            <p className='font-semibold'>{activeProfile?.stats?.posts  || 0}</p>
+            <p className='text-sm'>posts</p>
           </div>
           {/* Followers */}
-          <div className='flex items-center gap-1 text-xs font-semibold'>
-            <p>{activeProfile?.stats?.followers  || 0}</p>
-            <p>followers</p>
+          <div className='flex items-center gap-1 '>
+            <p className='font-semibold'>{activeProfile?.stats?.followers  || 0}</p>
+            <p className='text-sm'>followers</p>
           </div>
           {/* Following */}
-          <div className='flex items-center gap-1 text-xs font-semibold'>
-            <p>{activeProfile?.stats?.following  || 0}</p>
-            <p>following</p>
+          <div className='flex items-center gap-1 '>
+            <p className='font-semibold'>{activeProfile?.stats?.following  || 0}</p>
+            <p className='text-sm'>following</p>
           </div>
         </div>
 
@@ -94,7 +99,7 @@ alt="img" className='size-18 rounded-full object-cover'/>
       </div>
  
       {/* buttons */}
-      <div className='flex gap-2 items-center'>
+      <div className={`flex gap-2 items-center ${activeProfile?.relationship?.isSelf ?  " block" : "hidden"} `}>
         <button
         className='w-full bg-slate-400 font-semibold py-1 rounded hover:bg-slate-500 transition-colors duration-300'
         onClick={openEditProfile}
@@ -105,6 +110,20 @@ alt="img" className='size-18 rounded-full object-cover'/>
         className='w-full bg-slate-400 font-semibold py-1 rounded hover:bg-slate-500 transition-colors duration-300'
         >
           Edit archive
+        </button>
+      </div>
+
+      {/* not self btns */}
+      <div className={`flex gap-2 items-center ${activeProfile?.relationship?.isSelf ? "hidden" : "block"} `}>
+        <button
+        className=' py-1.5 bg-blue-500 font-semibold w-full rounded-lg hover:bg-blue-600 transition-colors duration-300 hover:cursor-pointer text-sm'
+        >
+          Follow
+        </button>
+        <button
+        className=' py-1.5 bg-slate-500 font-semibold w-full rounded-lg hover:bg-slate-400 transition-colors duration-300 hover:cursor-pointer text-sm'
+        >
+          Message
         </button>
       </div>
 

@@ -1,15 +1,87 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
+import {decrementCommetCount, incrementCommentCount} from "./post.slice"
+// import {addCommentOptimistic} from './comment.slice'
 
-export const createComment = createAsyncThunk("addComment", async({postId, content, parentId}, {rejectWithValue}) => {
+// export const createComment = createAsyncThunk("addComment", async({postId, content, parentId}, {rejectWithValue}) => {
+
+  
+
+//   try {
+//     const res = await axiosInstance.post('/comment/create-comment',{postId,content, parentId});
+//     toast.success('Comment added')
+//     return res?.data?.data;
+//   } catch (error) {
+//     toast.error(error?.response?.data || 'Failed to post comment')
+//     return rejectWithValue(error?.response?.data)
+//   }
+// })
+
+export const createComment = createAsyncThunk("addComment", async({postId, content, parentId}, thunkAPI) => {
+
+  const state = thunkAPI.getState()
+  const currentUser = state.profile.activeProfile;
+
+
+
+  if(!content.trim()){
+    toast.error('Comment cannot be empty')
+    return thunkAPI.rejectWithValue({
+      message: 'Comment cannot be empty'
+    })
+  }
+
+  // optimistic Comment
+  const optimisticComment = {
+    _id: `temp-${Date.now()}`,
+    content,
+    parentId,
+    createdAt: new Date().toISOString(),
+
+    author: {
+      _id: currentUser.accountId,
+      displayName: currentUser.displayName,
+      avatar: currentUser.avatar,
+      // username: currentUser.username,
+    },
+
+    // stats: {
+    //   likeCount: 0,
+    //   replyCount: 0,
+    // },
+    
+    isOptimistic: true,
+  }
+
+
+  thunkAPI.dispatch(
+    addCommentOptimistic(optimisticComment)
+  )
+
+ thunkAPI.dispatch(
+  incrementCommentCount({postId})
+ )
+  
+
   try {
     const res = await axiosInstance.post('/comment/create-comment',{postId,content, parentId});
     toast.success('Comment added')
-    return res?.data?.data;
+    return {
+      realComment: res?.data?.data,
+      tempId: optimisticComment._id,
+    }
   } catch (error) {
-    toast.error(error?.response?.data || 'Failed to post comment')
-    return rejectWithValue(error?.response?.data)
+
+    thunkAPI.dispatch(
+      decrementCommetCount({postId})
+    )
+
+    toast.error(error?.response?.data?.message || 'Failed to post comment')
+    return thunkAPI.rejectWithValue({
+      tempId: optimisticComment._id,
+      message:error?.response?.data || 'Failed to post comment',
+    })
   }
 })
 
@@ -30,6 +102,7 @@ const commentSlice = createSlice({
     nextCursor: null,
     replyLoading : {},
     error: null,
+    isSubmitting: false,
   },
   reducers: {
     addCommentOptimistic: (state, action) => {
@@ -46,23 +119,33 @@ const commentSlice = createSlice({
   extraReducers: (builder) => {
    builder
    .addCase(createComment.fulfilled, (state, action) => {
-    const newComment = action.payload;
-    const {parentId} = newComment;
+   const {realComment, tempId} = action.payload;
+  
+   const index = state.items.findIndex(
+    c => c._id === tempId,
+   )
 
-    if(!parentId) {
-      state.items.unshift(newComment);
-    }else{
-      const parentComment = state.items.find(c => c._id === parentId);
-      if(parentComment){
-      
-      if(!parentComment.replies) parentComment.replies = [];
+   if(index !== -1) {
+    state.items[index] = {
+      ...state.items[index],
+      ...realComment,
+      isOptimistic: false,
+    };
+   }
 
-      parentComment.replies.push(newComment);
-      parentComment.stats.replyCount += 1;
-    }}
-    state.isSubmitting = false;
+   state.isSubmitting = false;
   }
   )
+  .addCase(createComment.rejected, (state, action) => {
+    const tempId = action.payload?.tempId ;
+
+    state.items = state.items.filter(
+      (c) => c._id !== tempId
+    );
+
+    state.isSubmitting = false;
+
+  })
   .addCase(createComment.pending, (state)=> {
     state.isSubmitting = true;
   })
@@ -71,13 +154,28 @@ const commentSlice = createSlice({
   })
   .addCase(fetchComments.fulfilled, (state, action) => {
     state.loading = false;
-    // Append if cursor exists, else replace (for fresh load)
-    state.items = action.meta.arg.cursor
-    ? [...state.items, ...action.payload.data]
-    : action.payload.data;
+   
+    if(action.meta.arg.cursor){
+     
+      const existingIds = new Set(
+        state.items.map(item => item._id)
+      )
+
+      const newComments = action.payload.data.filter(
+       item  => !existingIds.has(item._id)
+      )
+
+      state.items = [...state.items, ...newComments]
+    }else{
+      state.items = action.payload.data
+    }
+
     state.nextCursor = action.payload?.nextCursor;
   })
   }
 })
+
+export const {addCommentOptimistic, clearComments, resetComments} = commentSlice.actions;
+
 
 export default commentSlice.reducer;

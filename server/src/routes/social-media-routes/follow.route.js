@@ -1,6 +1,6 @@
 import express from 'express'
 import { isAuthenticated } from '../../middlewares/auth.middleware.js';
-import { toggleFollow } from '../../controllers/follow.controller.js';
+import { getFollowers, toggleFollow } from '../../controllers/follow.controller.js';
 
 const router = express.Router();
 
@@ -9,5 +9,11 @@ const router = express.Router();
 //   isAuthenticated,
 //   toggleFollow
 // )
+
+router.get(
+  '/get-data',
+  isAuthenticated,
+  getFollowers
+)
 
 export default router;

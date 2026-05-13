@@ -1,3 +1,4 @@
+import Profile from "../DBmodels/profile.model.js";
 import Post from "../DBmodels/social-media/post.model.js";
 import Save from "../DBmodels/social-media/save.model.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
@@ -27,6 +28,9 @@ export const getSavedPosts = asyncHandler(async(req,res,next) => {
   const {cursor, limit = 10} = req.query;
   const userId = req.user.id;
 
+  console.log(userId);
+
+
   const query = {userId};
   if(cursor) {
     query.createdAt = {$lt : new Date(cursor)}
@@ -37,21 +41,45 @@ export const getSavedPosts = asyncHandler(async(req,res,next) => {
   .limit(Number(limit))
   .populate({
     path: 'postId',
-    select: 'content media stats authorId  createdAt'
+    select: 'caption media stats authorId  createdAt'
   }).lean();
 
-  const data = savedItems
+  console.log("savedItems",savedItems);
+
+  const posts = savedItems
   .filter( item => item.postId)
   .map(item => ({
     ...item.postId,
     savedAt: item.createdAt
   }))
-  
+ 
+  const authorIds = posts.map(post => post.authorId)
+
+  const profiles = await Profile.find({
+    accountId: {$in: authorIds}
+  })
+  .select('accountId displayName avatar ')
+  .lean();
+
+  const profileMap= { };
+
+   profiles.forEach(profile => {
+    profileMap[profile.accountId] = profile
+   })
+
+  const finalPost = posts.map(post => ({
+    ...post,
+    author: profileMap[post.authorId] || null
+  }))
+
   const nextCursor = savedItems.length === Number(limit) 
   ? savedItems[savedItems.length - 1].createdAt 
   : null;
 
-  res.status(200).json({success: true, data, nextCursor})
+  res.status(200).json({
+    success: true, 
+    data: finalPost, 
+    nextCursor})
 
 })
 

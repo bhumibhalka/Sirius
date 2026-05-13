@@ -76,6 +76,33 @@ export const toggleLike = createAsyncThunk("toggleLike", async({postId}, {reject
   }
 })
 
+export const createComment = createAsyncThunk("addComment", async({ postId, content, parentId}, thunkAPI) => {
+try {
+  const res = await axiosInstance.post('/comment/create-comment', {
+    postId,
+    content,
+    parentId,
+  });
+
+  toast.success('Comment added')
+
+  return {
+    ...res.data.data,
+    postId,
+    parentId
+  }
+
+} catch (error) {
+  toast.error(error?.response?.data?.message || 'Failed to post comment');
+
+  return thunkAPI.rejectWithValue({
+    message: error?.response?.data?.message,
+    postId,
+    parentId,
+  })
+}
+})
+
 
 const postSlice = createSlice({
   name: 'post',
@@ -95,7 +122,28 @@ const postSlice = createSlice({
       const {postId, parentId} = action.payload;
       
       // only increase for the top-level comments
-      
+      if(parentId) return;
+    
+      const post = state.homeFeedPosts.find(
+        (p) => p._id === postId
+      )
+
+      if(post) {
+        post.stats.commentCount += 1
+      }
+    },
+    decrementCommetCount: (state, action) => {
+    const {postId, parentId} = action.payload;
+
+    if(parentId) return;
+
+    const post = state.homeFeedPosts.find(
+      (p) => p._id === postId
+    )
+
+    if(post && post.state.commentCount > 0) {
+      post.stats.commentCount -= 1;
+    }
     },
     // Optimistic UI Update: Heart turns red immediately when clicked
     toggleLikeOptimistic: (state, action) => {
@@ -222,9 +270,29 @@ const postSlice = createSlice({
     existingPost.isSaved = isSaved;
   }
 })
+.addCase(createComment.rejected, (state, action) => {
+  const {postId, parentId} = action.payload || {};
+
+  if(parentId) return;
+
+  const post = state.homeFeedPosts.find(
+    (p) => p._id === postId
+  )
+  if(post && post.stats.commentCount > 0) {
+    post.stats.commentCount -= 1
+  }
+})
   }
 })
 
-export const {toggleLikeOptimistic, toggleSaveOptimistic, clearFeed, resetProfilePosts, likeToggleOptimistic} = postSlice.actions
+export const {
+  toggleLikeOptimistic, 
+  toggleSaveOptimistic, 
+  clearFeed, 
+  resetProfilePosts, 
+  likeToggleOptimistic, 
+  incrementCommentCount, 
+  decrementCommetCount
+} = postSlice.actions
 
 export default postSlice.reducer

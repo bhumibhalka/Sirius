@@ -116,3 +116,29 @@ console.log("TARGET UPDATE:", targetResult);
 
 });
 
+export const getFollowers = asyncHandler(async(req,res,next) => {
+  const {cursor , limit = 10} = req.query;
+  const userId = req.user.id;
+
+  const query = {
+    $or : [
+      {followerId: userId},
+      {followerId: userId}
+    ]
+    };
+  if(cursor) query.createdAt = {$lt : new Date(cursor)}
+
+  const data = await Follow.find(query)
+  .limit(Number(limit))
+  .sort({createdAt: -1})
+  .lean();
+
+  const nextCursor = data.length === Number(limit) ? data[data.length -1] : null;
+
+  res.status(200).json({
+    success: true,
+    data,
+    nextCursor
+  })
+
+})

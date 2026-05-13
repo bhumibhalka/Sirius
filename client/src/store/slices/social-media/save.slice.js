@@ -13,10 +13,18 @@ export const toggleSavePost = createAsyncThunk("toggleSavePost", async(post, thu
 })
 
 export const fetchSavedPost = createAsyncThunk("fetchSavedPost", async({cursor}, {rejectWithValue}) => {
+
+    console.log("THUNK RUNNING"); 
+
   try {
-    const res = await axiosInstance.get(`/save/all-saved/post?cursor=${cursor}`);
+    const res = await axiosInstance.get(`/save/all-saved/post?cursor=${cursor || ''}`);
+
+    console.log("RESPONSE", res.data);
+
+
     return res?.data;
   } catch (error) {
+    console.log(error);
     toast.error(error?.response?.data || 'Failed to fetch saved posts')
     return rejectWithValue(error?.response?.data)
   }
@@ -54,7 +62,7 @@ const saveSlice = createSlice({
     state.library = action.meta.arg.cursor //if this request was made with cursor then do this add more data to the already exiting one
     ? [...state.library, ...action.payload.data]
     : action.payload.data;
-    state.nextCursor = action.payload.nextCursor;
+    state.nextCursor = action.payload?.nextCursor;
    })
    .addCase(toggleSavePost.fulfilled, (state, action) => {
   const { post, isSaved } = action.payload;

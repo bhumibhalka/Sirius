@@ -11,6 +11,7 @@ import saveReducers from "./slices/social-media/save.slice"
 import orderReducers from "./slices/order.slice"
 import sellerReducers from "./slices/seller.slice"
 import adminReducers from "./slices/admin.slice"
+import followReducers from "./slices/social-media/follow.slice"
 
 export const store = configureStore({
   reducer: {
@@ -26,5 +27,6 @@ export const store = configureStore({
     order: orderReducers,
     seller: sellerReducers,
     admin: adminReducers,
+    follow: followReducers,
   }
 })

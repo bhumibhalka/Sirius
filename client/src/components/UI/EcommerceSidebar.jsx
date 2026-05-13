@@ -33,7 +33,7 @@ const EcommerceSidebar = () => {
     
 
   return (
-    <header className='max-sm:hidden border-r border-slate-500 p-6 max-w-sm w-full min-h-screen text-white'>
+    <header className='max-sm:hidden border-r border-slate-500 p-6 max-w-sm w-full min-h-screen text-white h-screen fixed bg-black '>
       <nav className='space-y-3'>
 
         {/* <div className='relative'>

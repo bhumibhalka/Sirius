@@ -13,6 +13,7 @@ import { fetchUsers } from '../../store/slices/social-media/user.slice'
 import SearchSidebar from '../../components/popups/SearchSidebar'
 import Comment from '../../components/popups/Comment'
 import { fetchSavedPost, toggleSavePost } from '../../store/slices/social-media/save.slice'
+import EcommerceSidebar from '../../components/UI/EcommerceSidebar'
 
 
 const Home = () => {
@@ -128,9 +129,9 @@ useEffect(() => {
   return () => window.removeEventListener('scroll', handleScroll);
 }, [loadMore]);
 
-  useEffect(()=> {
-    dispatch(fetchSavedPost({cursor : null }))
-  },[])
+  // useEffect(()=> {
+  //   dispatch(fetchSavedPost({cursor : null }))
+  // },[])
 
 //   if(isRefreshing) {
 //  return (
@@ -142,71 +143,13 @@ useEffect(() => {
 //   }
   
   return (
-    <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:gird-cols-2 md:grid-cols-3 gap-4'>
+    <div className='bg-black min-h-screen text-white  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
       {/* navbar */}
-     <header className=' max-sm:hidden border-r border-right border-slate-500 p-6 max-w-sm w-full h-screen '>
-      <nav className='space-y-3'>
 
-
-        <div className='font-semibold '>
-
-          <div className=' hover:bg-slate-700 rounded-lg '> 
-            <Link className='flex gap-2 p-2 ' >
-            <HomeIcon />
-          <p>Home</p> 
-            </Link>
-            
-          </div>
-
-          <div className=' hover:bg-slate-700 rounded-lg '> 
-          <Link className='flex gap-2 p-2 ' >
-          <VideoIcon /> 
-          <p>Reels</p>
-          </Link>
-          </div>
-
-          <div className=' hover:bg-slate-700 rounded-lg '
-          onClick={toggleSearch}
-          > 
-          <Link className='flex gap-2 p-2 ' >
-          <Search /> 
-          <p>Search</p>
-          </Link>
-          </div>
-
-          
-
-          <div className=' hover:bg-slate-700 rounded-lg flex gap-2 p-2 '
-          onClick={handleToggleUpload}
-          > 
-            <Plus />
-            <p>Upload</p>
-          </div>
-
-          <div className=' hover:bg-slate-700  rounded-lg '> 
-          <Link className='flex gap-2 p-2 ' to={'/social/posts'}>
-            <Video />
-           <p>Posts</p>
-          </Link>
-          </div>
-
-          <div className=' hover:bg-slate-700 rounded-lg  '> 
-          <Link className='flex gap-2 p-2 '>
-            <MessageCircle />
-          <p>Notifications</p>
-          </Link>
-          </div>
-
-          <div className=' hover:bg-slate-700 rounded-lg '> 
-          <Link className='flex gap-2 p-2 ' to={`/social/profile/${user?.username}`}>
-            < User2Icon />
-          <p>Profile</p>
-          </Link>
-          </div>
-
-        </div>
-      </nav>
-     </header>
+      <div className=''>
+      <EcommerceSidebar />
+      </div>
+        
 
       {/* posts */}
      <div className='space-y-2'>
