@@ -29,8 +29,8 @@ const Home = () => {
   const [images, setImages] = useState([])
   const [search, setSearch] = useState("");
  const [currentPost, setCurrentPost] = useState(null);
-console.log(homeFeedPosts);
-console.log("user:",user);
+// console.log(homeFeedPosts);
+// console.log("user:",user);
 
 
 // const getUserProfile = (id) => {

@@ -1,5 +1,5 @@
 import { Upload, X } from 'lucide-react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUploadPost } from '../../store/slices/popup.slice';
 import { useState } from 'react';
@@ -19,12 +19,16 @@ const AddPost = () => {
   }
 
   const handleMedia = (e) => {
-    const files = Array.from(e.target.files);
-    setMedia(files);
+if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      console.log("FILES SELECTED:", files);
+      setMedia(files);
+    }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
    e.preventDefault();
+
    const data = new FormData();
    data.append('caption',caption);
    
@@ -32,12 +36,21 @@ const AddPost = () => {
     data.append('media', file)
    })
 
-   dispatch(createPost(data)).then(()=>{
+   console.log("MEDIA :", media);
+
+   const result = await dispatch(createPost(data))
+
+
+   if(result?.meta?.requestStatus === "fulfilled"){
     setCaption('');
     setMedia([]);
     dispatch(toggleUploadPost());
-   })
+   }
   }
+
+  useEffect(() => {
+  console.log("UPDATED MEDIA:", media);
+}, [media]);
 
 
   return (
@@ -63,19 +76,19 @@ const AddPost = () => {
 
       {/* image */}
        <div className='w-full border border-dashed flex items-center justify-center py-12 rounded'>
-        <label htmlFor="post" className='flex flex-col items-center'>
-          <Upload />
-         <p>Upload</p>  
+        {/* <label htmlFor="post" className='flex flex-col items-center'>
+          <Upload /> */}
+         {/* <p>Upload</p>   */}
           <input
            type="file"
-           className='hidden'
+           className=''
            id='post'
            onChange={handleMedia}
            accept='image/*,video/*'
            multiple
-           required
+          //  required
            />
-        </label>
+        {/* </label> */}
        </div>
 
       {/* title */}
@@ -103,7 +116,7 @@ const AddPost = () => {
         <button
         type='submit'
         className='btn-black'
-        disabled={isUploading}
+        disabled={isUploading || media.length === 0}
         >
           {isUploading ? "Uploading..." : "Upload"}
         </button>

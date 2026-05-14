@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
 
-export const fetchFollower = createAsyncThunk("", async({cursor}, {rejectWithValue}) => {
+export const fetchFollower = createAsyncThunk("fetchFollower", async({cursor}, {rejectWithValue}) => {
   try {
     const res = await axiosInstance.get(`/follow/get-info?cursor=${cursor || ''}`);
     return res?.data;
@@ -15,7 +15,6 @@ export const fetchFollower = createAsyncThunk("", async({cursor}, {rejectWithVal
 const followSlice = createSlice({
   name: 'follow',
   initialState: {
-  
     items: [],
     loading : false,
     nextCursor: ''

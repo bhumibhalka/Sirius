@@ -116,24 +116,43 @@ console.log("TARGET UPDATE:", targetResult);
 
 });
 
-export const getFollowers = asyncHandler(async(req,res,next) => {
-  const {cursor , limit = 10} = req.query;
+export const getFollowers = asyncHandler(async(req,res,next)=> {
+  const {type ,cursor, limit = 10} = req.query;
   const userId = req.user.id;
 
-  const query = {
-    $or : [
-      {followerId: userId},
-      {followerId: userId}
-    ]
-    };
-  if(cursor) query.createdAt = {$lt : new Date(cursor)}
+  const query = {};
+  if( type === "followers") {
+    query.followingId = userId; // poeple following this user
+  }else{
+    query.followerId = userId; 
+  }
+  
 
-  const data = await Follow.find(query)
+  if(cursor) query.createdAt = {$lt : new Date(cursor)}
+ 
+  const follows = await Follow.find(query)
   .limit(Number(limit))
   .sort({createdAt: -1})
   .lean();
 
-  const nextCursor = data.length === Number(limit) ? data[data.length -1] : null;
+  const targetIds = follows.map((f) => {
+   type === 'followers' ? f.followerId : f.followingId;
+  })
+
+  const profile  = await Profile.find({accountId: {$in : targetIds} })
+  .select('displayName avatar bio')
+  .lean();
+
+  const data = follows.map(f => {
+    const id = type === 'followers' ? f.followerId : f.followingId;
+    return {
+      followId: f._id,
+      followedId: f.createdAt,
+      user: profile.find( p => p.accountId === id || null)
+    }
+  })
+
+  const nextCursor = data.length === Number(limit) ? data[data.length - 1].createdAt : null;
 
   res.status(200).json({
     success: true,
@@ -141,4 +160,32 @@ export const getFollowers = asyncHandler(async(req,res,next) => {
     nextCursor
   })
 
+
 })
+
+// export const getFollowers = asyncHandler(async(req,res,next) => {
+//   const {cursor , limit = 10} = req.query;
+//   const userId = req.user.id;
+
+//   const query = {
+//     $or : [
+//       {followerId: userId},
+//       {followingId: userId}
+//     ]
+//     };
+//   if(cursor) query.createdAt = {$lt : new Date(cursor)}
+
+//   const data = await Follow.find(query)
+//   .limit(Number(limit))
+//   .sort({createdAt: -1})
+//   .lean();
+
+//   const nextCursor = data.length === Number(limit) ? data[data.length -1] : null;
+
+//   res.status(200).json({
+//     success: true,
+//     data,
+//     nextCursor
+//   })
+
+// })

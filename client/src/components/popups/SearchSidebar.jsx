@@ -9,7 +9,7 @@ const SearchSidebar = () => {
   const dispatch = useDispatch();
   const {isSearchOpen} = useSelector(state => state.popup);
   const {items, loading} = useSelector(state => state.user);
-  console.log(items);
+  // console.log(items);
 
   const [searchTerm, setSearchTerm] = useState('');
 
