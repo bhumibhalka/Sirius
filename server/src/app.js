@@ -30,13 +30,13 @@ app.post('/api/v1/payment/stripe/webhook',
   handleStripeWebhook
 )
 
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-app.use(cookieParser())
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp",
 }))
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(cookieParser())
 
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/product", productRoutes);

@@ -17,10 +17,12 @@ const Profile = () => {
   const {activeProfile, loading, error} = useSelector(state => state.profile)
   const {userPosts} = useSelector(state => state.post);
   const {isEditProfileOpen} = useSelector(state => state.popup);
-  const {library} = useSelector(state => state.save)
+  const {library} = useSelector(state => state.save);
+  const {items} = useSelector(state => state.follow);
   console.log("user",user);
   console.log('library:',library);
   console.log("activeProfile",activeProfile);
+  console.log("follow data",items);
   // console.log('posts:', userPosts);
   const {username} = useParams();
 

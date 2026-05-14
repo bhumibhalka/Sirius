@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
 import { toggleSavePost } from "./save.slice";
-import { act } from "react";
 
 export const createPost = createAsyncThunk("createPost", async(data,thunkAPI) => {
   try {
@@ -190,7 +189,7 @@ const postSlice = createSlice({
    .addCase(createPost.fulfilled, (state, action)=> {
     state.isUploading = false;
     state.homeFeedPosts.unshift(action.payload); //newest on top
-    state.userPosts = [... state.userPosts ,...action.payload]
+    state.userPosts.unshift(action.payload)
    })
    .addCase(createPost.rejected, (state)=> {
     state.isUploading = false;
