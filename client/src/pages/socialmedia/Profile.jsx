@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProfile } from '../../store/slices/social-media/profile.slice';
+import { getProfile, optimisticFollowToggle, toggleFollow } from '../../store/slices/social-media/profile.slice';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Bookmark, Ellipse, Ellipsis, EllipsisVertical, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
+import { ArrowBigDown, ArrowDown, ArrowDown01, Bookmark, Ellipse, Ellipsis, EllipsisVertical, Grid, Plus, Settings, Settings2, User2 } from 'lucide-react';
 import { useState } from 'react';
 import EditProfile from '../../components/popups/EditProfile';
 import { toggleEditProfileModal } from '../../store/slices/popup.slice';
 import { getUserPosts, resetProfilePosts } from '../../store/slices/social-media/post.slice';
 import { fetchSavedPost } from '../../store/slices/social-media/save.slice';
+import { fetchFollowData } from '../../store/slices/social-media/follow.slice';
 
 const Profile = () => {
 
@@ -18,24 +19,35 @@ const Profile = () => {
   const {userPosts} = useSelector(state => state.post);
   const {isEditProfileOpen} = useSelector(state => state.popup);
   const {library} = useSelector(state => state.save);
-  const {items} = useSelector(state => state.follow);
-  console.log("user",user);
-  console.log('library:',library);
-  console.log("activeProfile",activeProfile);
-  console.log("follow data",items);
+  const {followers, following} = useSelector(state => state.follow);
+  // console.log("user",user);
+  // console.log('library:',library);
+  // console.log("activeProfile",activeProfile);
+  // console.log("follow data",following.list);
+  // console.log("follow data",followers.list);
   // console.log('posts:', userPosts);
   const {username} = useParams();
 
   const [filterPosts, setFilterPost] = useState('all')
-  // const [selectedProfile, setSelectedProfile] = useState(null);
-
-  // const filteredPosts = posts?.filterPosts(post => {
-  //   const matchesFilter = filterPosts === 'all' || post.
-  // })
 
   const filteredPosts = filterPosts === "saved" ? library : userPosts;
 
-  console.log(filteredPosts);
+  // const isFollowing =  followers?.list?.some(item =>{ 
+  //   console.log(item);
+  //   return( 
+  //     item.user?.accountId === user.id
+  //   )
+  // }) 
+  // console.log(isFollowing);
+
+  // console.log(filteredPosts);
+
+  const isFollowing = activeProfile?.relationship?.isFollowing 
+
+  const handleToggleFollow = () => {
+    dispatch(optimisticFollowToggle(activeProfile?.accountId))
+    dispatch(toggleFollow(activeProfile?.accountId))
+  }
 
   const openEditProfile = () => {
     dispatch(toggleEditProfileModal())
@@ -47,10 +59,18 @@ useEffect(() => {
     dispatch(resetProfilePosts()); // ✅ clear old feed posts
     dispatch(getProfile(username)); // profile info
     dispatch(getUserPosts(username)); // ✅ fetch ONLY this user's posts
-    console.log("fetching saved posts");
+    // console.log("fetching saved posts");
     dispatch(fetchSavedPost({cursor: null}))
   }
 }, [username, dispatch]);
+
+useEffect(()=> {
+  if(activeProfile?.accountId){
+        dispatch(fetchFollowData({userId: activeProfile?.accountId ,type: "followers", cursor: null}))
+        dispatch(fetchFollowData({userId: activeProfile?.accountId, type: "following", cursor: null}))
+  }
+},[activeProfile?.accountId, dispatch])
+
   return (
     <div className='bg-black min-h-screen p-6 text-white'>
      
@@ -60,11 +80,14 @@ useEffect(() => {
      <div>
      <div className='space-y-6 p-4 w-full max-w-2xl mx-auto'>
 
+
+     {/* profile info */}
+     <div className='space-y-1'>
       {/* profile info */}
       <div className='flex gap-6'>
-      <div className='  '>
-        <img    src={ activeProfile?.avatar?.url}
-alt="img" className='size-18   rounded-full object-cover   '/>
+      <div className='bg-linear-to-tr from-yellow-400 via-orange-400 via-pink-500 to-purple-600 rounded-full flex items-center justify-center p-1'>
+        <img  src={ activeProfile?.avatar?.url}
+     alt="img" className='size-20 rounded-full object-cover bg-black p-1 '/>
       </div>
       <div className='space-y-2'>
         <div>
@@ -99,6 +122,13 @@ alt="img" className='size-18   rounded-full object-cover   '/>
 
       </div>
       </div>
+
+      {/* bio */}
+      <div>
+        <p>{activeProfile?.bio}</p>
+      </div>
+
+      </div>
  
       {/* buttons */}
       <div className={`flex gap-2 items-center ${activeProfile?.relationship?.isSelf ?  " block" : "hidden"} `}>
@@ -118,9 +148,13 @@ alt="img" className='size-18   rounded-full object-cover   '/>
       {/* not self btns */}
       <div className={`flex gap-2 items-center ${activeProfile?.relationship?.isSelf ? "hidden" : "block"} `}>
         <button
-        className=' py-1.5 bg-blue-500 font-semibold w-full rounded-lg hover:bg-blue-600 transition-colors duration-300 hover:cursor-pointer text-sm'
+        className={` py-1.5 bg-blue-500 font-semibold w-full rounded-lg hover:bg-blue-600 transition-colors duration-300 hover:cursor-pointer text-sm ${isFollowing ? "bg-slate-500" : ""}`}
+        onClick={handleToggleFollow}
         >
-          Follow
+          { isFollowing
+           ? ( 
+            <div className='flex items-center justify-center gap-1'><span>Following</span><ArrowDown size={14} /></div>)
+            : "Follow"}
         </button>
         <button
         className=' py-1.5 bg-slate-500 font-semibold w-full rounded-lg hover:bg-slate-400 transition-colors duration-300 hover:cursor-pointer text-sm'

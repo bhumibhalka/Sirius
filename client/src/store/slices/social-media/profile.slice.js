@@ -19,6 +19,7 @@ export const toggleFollow = createAsyncThunk("toggleFollow", async(targetUserId,
     toast.success(res?.data?.isFollowing ? 'User followed' : 'User unfollowed')
     return res?.data;
   } catch (error) {
+    console.log("profile upadting error",error);
     toast.error(error?.response?.data?.message || 'Failed to follow user');
     return rejectWithValue(error?.response?.data?.message)
   }

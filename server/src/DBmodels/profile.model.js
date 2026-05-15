@@ -32,6 +32,7 @@ const profileScehma = new mongoose.Schema({
     type:String,
     maxLength: [250, "Bio cannot contain more than 250 characters"],
     trim: true,
+    default: '',
   },
   // Social status
   isPrivate: {

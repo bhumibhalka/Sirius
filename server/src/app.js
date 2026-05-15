@@ -33,6 +33,7 @@ app.post('/api/v1/payment/stripe/webhook',
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp",
+  parseNested: true, 
 }))
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));

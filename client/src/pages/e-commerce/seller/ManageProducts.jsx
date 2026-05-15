@@ -15,7 +15,7 @@ const ManageProducts = () => {
   const {products} = useSelector(state => state.product)
   const {isEditModalOpen} = useSelector(state => state.popup);
   const orders = useSelector(state => state.seller.orders) || {};
-  //  console.log(products);
+   console.log("products:",products);
    console.log("orders:",orders);
 
   const [searchQuery, setSearchQuery] = useState('')

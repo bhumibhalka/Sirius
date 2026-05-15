@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
-import React from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux'
+import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { toggleEditModal } from '../../store/slices/popup.slice';
 import { editProduct } from '../../store/slices/product.slice';
 import { useEffect } from 'react';
@@ -9,22 +9,56 @@ import { useEffect } from 'react';
 const EditModal = ({selectedProduct}) => {
 
   const dispatch = useDispatch();
-  const {loading} = useSelector(state => state.product);
+  const {loading , isEditModalOpen} = useSelector((state) => ({
+     loading: state.product.loading,
+     isEditModalOpen: state.popup.isEditModalOpen,
+  }),
+ shallowEqual
+)
 
-   const [formData, setFormData] = useState({
-      title: selectedProduct?.title || '',
-      description: selectedProduct?.description || '',
-      price: selectedProduct?.variants?.[0]?.price || '',
-      stock: selectedProduct?.variants?.[0]?.stock || '',
+  const initialFormData = useMemo(()=> ({
+    title: selectedProduct?.title || '',
+    description: selectedProduct?.description || '',
+    price: selectedProduct?.variants?.[0]?.price || '',
+    stock: selectedProduct?.variants?.[0]?.stock || '',
+  }), [selectedProduct])
+   const [formData, setFormData] = useState(initialFormData)
+
+   useEffect(()=> {
+
+    if(!selectedProduct) return;
+
+    setFormData({
+      title: selectedProduct.title || "",
+      description: selectedProduct.description || "",
+      stock: selectedProduct.variants?.[0]?.stock || "",
+      price: selectedProduct.variants?.[0]?.price || "",
     })
 
-  const closeModal = () => {
-   dispatch(toggleEditModal())
-  }
+   }, [selectedProduct])
 
-  const handleSubmit = async(e) => {
+
+  const closeModal = useCallback(() => {
+   dispatch(toggleEditModal())
+  },[dispatch])
+
+  const handleInputChange = useCallback((e) => {
+    
+    const { name, value } = e.target;
+    
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+
+  },[])
+
+  const handleSubmit = useCallback(async(e) => {
+
     e.preventDefault();
+    
     try {
+
      await dispatch(editProduct({id: selectedProduct, data: formData})).unwrap()
       
      closeModal();
@@ -34,19 +68,9 @@ const EditModal = ({selectedProduct}) => {
     }
    
 
-  }
+  },[dispatch, selectedProduct, formData, closeModal]);
 
-  useEffect(()=> {
-    if(!selectedProduct) return;
-    
-    setFormData({
-      title: selectedProduct.title || "",
-      description: selectedProduct.description || "",
-      stock: selectedProduct.variants?.[0]?.stock || "",
-      price: selectedProduct.variants?.[0]?.price || "",
-    })
-   
-  },[selectedProduct]);
+  if(!selectedProduct || !isEditModalOpen ) return null;
 
   return (
     <div className='fixed inset-0 bg-black/50 z-50 backdrop-blur-xs flex items-center justify-center'>
@@ -71,9 +95,10 @@ const EditModal = ({selectedProduct}) => {
           <label className='text-sm font-semibold'>Title<sup>*</sup></label>
           <input
            type="text"
+           name='title'
            className='input border-slate-300'
           value={formData.title}
-          onChange={(e) => setFormData({...formData, title: e.target.value})}
+          onChange={handleInputChange}
            />
         </div>
 
@@ -82,9 +107,10 @@ const EditModal = ({selectedProduct}) => {
           <label className='text-sm font-semibold'>Description<sup>*</sup></label>
           <input
            type="text"
+           name='description'
            className='input border-slate-300'
           value={formData.description}
-          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          onChange={handleInputChange}
            />
         </div>
 
@@ -93,9 +119,10 @@ const EditModal = ({selectedProduct}) => {
           <label className='text-sm font-semibold'>Stock<sup>*</sup></label>
           <input
            type="number"
+           name='stock'
            className='input border-slate-300'
           value={formData.stock}
-          onChange={(e) => setFormData({...formData, stock: e.target.value})}
+          onChange={handleInputChange}
            />
         </div>
 
@@ -104,9 +131,10 @@ const EditModal = ({selectedProduct}) => {
           <label className='text-sm font-semibold'>Price<sup>*</sup></label>
           <input
            type="number"
+           name='price'
            className='input border-slate-300'
           value={formData.price}
-          onChange={(e) => setFormData({...formData, price: e.target.value})}
+          onChange={handleInputChange}
            />
         </div>
 
@@ -139,4 +167,4 @@ const EditModal = ({selectedProduct}) => {
   )
 }
 
-export default EditModal
+export default memo(EditModal) 

@@ -2,37 +2,52 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../../utils/axios";
 import { toast } from "react-toastify";
 
-export const fetchFollower = createAsyncThunk("fetchFollower", async({cursor}, {rejectWithValue}) => {
+export const fetchFollowData = createAsyncThunk("", async({userId,type, cursor}, {rejectWithValue})=> {
   try {
-    const res = await axiosInstance.get(`/follow/get-info?cursor=${cursor || ''}`);
-    return res?.data;
+    const res = await axiosInstance.get(`/follow/${userId}/follow-data?type=${type}&cursor=${cursor || ''}`);
+    return {
+      data: res?.data?.data,
+      type,
+      nextCursor: res?.data?.nextCursor,
+    }
   } catch (error) {
-    toast.error(error?.response?.data || "Failed to fetch followers")
-    return rejectWithValue(error?.response?.data || "Failed to fetch followers")
+    toast.error(error?.response?.data || 'Failed to fetch followData')
+    return rejectWithValue(error?.response?.data || 'Failed to fetch follow data')
   }
 })
 
 const followSlice = createSlice({
   name: 'follow',
   initialState: {
-    items: [],
-    loading : false,
-    nextCursor: ''
+    followers: {
+      list: [],
+      loading: false,
+      cursor: null,
+    },
+    following: {
+      list: [],
+      loading: false,
+      cursor: null,
+    }
   },
   reducers: {},
   extraReducers: (builder) => {
    builder
-   .addCase(fetchFollower.pending, (state)=> {
-    state.loading = true;
+   .addCase(fetchFollowData.pending, (state, action) => {
+    state[action.meta.arg.type].loading = true;
    })
-   .addCase(fetchFollower.fulfilled , (state, action)=> {
-    state.loading = false;
-    state.items = action.payload?.data;
-    state.nextCursor = action.payload?.nextCursor;
+   .addCase(fetchFollowData.fulfilled, (state, action) => {
+    const {type, data, nextCursor} = action.payload;
+     state[type].loading = false;
+     state[type].list = action.meta.arg.cursor 
+     ? [...state[type].list, ...data]
+     : data;
+     state[type].cursor = nextCursor;
    })
-   .addCase(fetchFollower.rejected, (state) => {
-    state.pending = false;
-   })
+  //  .addCase(fetchFollowData.rejected, (state, action)=> {
+  //   state[type].loading = false;
+  //  })
+
   }
 })
 
