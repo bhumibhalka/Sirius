@@ -1,6 +1,6 @@
 import express from 'express'
 import { isAuthenticated } from '../../middlewares/auth.middleware.js';
-import { getFollowers, toggleFollow } from '../../controllers/follow.controller.js';
+import {  getFollowData, toggleFollow } from '../../controllers/follow.controller.js';
 
 const router = express.Router();
 
@@ -11,9 +11,9 @@ const router = express.Router();
 // )
 
 router.get(
-  '/get-data',
+  '/:userId/follow-data',
   isAuthenticated,
-  getFollowers
+  getFollowData
 )
 
 export default router;

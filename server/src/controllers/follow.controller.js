@@ -116,9 +116,9 @@ console.log("TARGET UPDATE:", targetResult);
 
 });
 
-export const getFollowers = asyncHandler(async(req,res,next)=> {
+export const getFollowData = asyncHandler(async(req,res,next)=> {
   const {type ,cursor, limit = 10} = req.query;
-  const userId = req.user.id;
+  const {userId} = req.params;
 
   const query = {};
   if( type === "followers") {
@@ -135,22 +135,28 @@ export const getFollowers = asyncHandler(async(req,res,next)=> {
   .sort({createdAt: -1})
   .lean();
 
-  const targetIds = follows.map((f) => {
-   type === 'followers' ? f.followerId : f.followingId;
-  })
+  console.log("FOLLOWS:", follows);
+
+  const targetIds = follows.map((f) =>  type === 'followers' ? f.followerId : f.followingId
+  )
+
+  console.log("TARGET IDS:", targetIds);
 
   const profile  = await Profile.find({accountId: {$in : targetIds} })
-  .select('displayName avatar bio')
+  .select('displayName avatar bio accountId')
   .lean();
 
+  console.log("PROFILES:", profile);
   const data = follows.map(f => {
     const id = type === 'followers' ? f.followerId : f.followingId;
     return {
       followId: f._id,
       followedId: f.createdAt,
-      user: profile.find( p => p.accountId === id || null)
+      user: profile.find( p => String(p.accountId) === String(id)) || null
     }
   })
+
+  console.log("DATA:", data);
 
   const nextCursor = data.length === Number(limit) ? data[data.length - 1].createdAt : null;
 

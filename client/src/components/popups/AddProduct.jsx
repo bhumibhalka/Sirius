@@ -5,6 +5,26 @@ import { toggleAddProduct } from '../../store/slices/popup.slice';
 import { useState } from 'react';
 import { addProduct } from '../../store/slices/product.slice';
 
+const categories = [
+  "Limited Edition",
+  "Essentials",
+  "Accessories",
+  "Bags",
+  "Men",
+  "Women",
+  "Shoes",
+  "Bespoke",
+  "Statement",
+]
+
+const initialFormData = {
+  title: '',
+  description: '',
+  category: '',
+  price: '',
+  stock: '',
+}
+
 const AddProduct = () => {
 
   const dispatch = useDispatch();
@@ -18,7 +38,6 @@ const AddProduct = () => {
     price: '',
     stock: '',
   })
-
   const [images, setImages] = useState([]);
 
   const handleFiles = (e) => {
@@ -47,6 +66,7 @@ const AddProduct = () => {
     dispatch(addProduct(data))
     closeModal()
   }
+     if (!isAddProductModalOpen) return null;
 
   return (
     <div className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-xs'>
@@ -128,15 +148,16 @@ const AddProduct = () => {
           required
           >
             <option value="">Selet category</option>
-            <option value="Limited Edition">Limited Edition</option>
-            <option value="Essentials">Essentials</option>
-            <option value="Accessories">Accessories</option>
-            <option value="Bags">Bags</option>
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Shoes">Shoes</option>
-            <option value="Bespoke">Bespoke</option>
-            <option value="Statement">Statement</option>
+
+              {
+                categories.map((category) => (
+                  <option 
+                  key={category}
+                  value={category}>
+                    {category}
+                  </option>
+                ))
+              }
           </select>
         </div>
 

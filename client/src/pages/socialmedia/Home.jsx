@@ -22,6 +22,7 @@ const Home = () => {
   const {user} = useSelector(state => state.auth)
   const {isUploadPostModalOpen, isSearchOpen, isCommentOpen} = useSelector(state => state.popup)
   const {homeFeedPosts, nextCursor, status, isRefreshing, loading} = useSelector(state => state.post);
+  const {activeProfile} = useSelector(state => state.profile)
   const {followStatus} = useSelector(state => state.profile)
   const {library} = useSelector(state => state.save)
   const { items: users,  nextCursor: userNextCursor  } = useSelector(state => state.user);
@@ -30,8 +31,8 @@ const Home = () => {
   const [search, setSearch] = useState("");
  const [currentPost, setCurrentPost] = useState(null);
 // console.log(homeFeedPosts);
-// console.log("user:",user);
-
+console.log("user:",user);
+console.log(activeProfile);
 
 // const getUserProfile = (id) => {
 //   dispatch(getProfile())
@@ -152,7 +153,7 @@ useEffect(() => {
         
 
       {/* posts */}
-     <div className='space-y-2'>
+     <div className='space-y-2 ml-2xl'>
        {
         isRefreshing && (
           <div className='flex items-center justify-center p-2 w-full'>
@@ -190,7 +191,7 @@ return (
               {/* buttons */}
               <div className='flex items-center gap-2'>
                 <button
-                className={`bg-slate-600 px-3 font-semibold py-1 rounded-lg ${following ? "hidden": "block"} `}
+                className={`bg-slate-600 px-3 font-semibold py-1 rounded-lg ${following ? "hidden": "block"} ${post?.authorId === user.id ? "hidden" : ""}`}
                 onClick={()=> handleFollowClick(post?.authorId)}
                 >
                   Follow

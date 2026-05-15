@@ -1,38 +1,59 @@
-import { Ellipsis, EllipsisVertical, Heart, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { Ellipsis, Heart, X } from 'lucide-react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { createComment, fetchComments } from '../../store/slices/social-media/comment.slice';
 import { toggleCommentModal } from '../../store/slices/popup.slice';
 
 const Comment = ({post}) => {
 
   const dispatch = useDispatch();
-  const {items, isSubmitting} = useSelector(state => state.comment)
-  const { isCommentOpen } = useSelector(state => state.popup)
+  const { items, isSubmitting, isCommentOpen } = useSelector((state) => ({
+    items: state.comment.items,
+    isSubmitting: state.comment.isSubmitting,
+    isCommentOpen: state.popup.isCommentOpen
+  }),
+shallowEqual
+)
 
   const [content , setContent] = useState('')
 
   console.log("COMMENTS:", items);
 
+  const defferredComments = useDeferredValue(items);
   
-  const currentPost = post
-  console.log('posgt:',post);
-  const addComment = () => {
-    dispatch(createComment({postId: post._id , content: content}));
-      setContent('')
-  }
+  const currentPost = useMemo(()=> post, [post])
+  // console.log('posgt:',post);
 
-  const handleToggleComment = () => {
+  const handleToggleComment = useCallback(() => {
     dispatch(toggleCommentModal())
-  }
+  },[dispatch])
+
+  const handleCommentChange = useCallback((e)=> {
+    setContent(e.target.value)
+  },[])
+
+  const addComment = useCallback(()=>{
+    
+    if(!content.trim()) return;
+
+    dispatch(
+      createComment({
+        postId: post._id,
+        content: content.trim()
+      })
+    );
+
+    setContent('')
+
+  },[dispatch, content, post])
 
 useEffect(()=>{
   if(post?._id){
     dispatch(fetchComments({postId: post._id}))
   }
-},[post?._id])
+},[post?._id, dispatch])
 
-  if (!post) return null;
+  if (!post || !isCommentOpen) return null;
 
   return (
     <div
@@ -59,11 +80,11 @@ useEffect(()=>{
        
      </div>
 
-    {/* comments */}
+    {/* COMMENTS */}
     <div className='space-y-2 '>
       {
-        items && items.length > 0 ? ( 
-           items.map((item) => (
+         defferredComments?.length > 0 ? ( 
+           defferredComments.map((item) => (
              <div key={item._id} className="flex gap-2 p-2 items-center justify-between">
                <div  className="flex gap-2 p-2">
               <img
@@ -92,12 +113,12 @@ useEffect(()=>{
 
     <hr className='text-slate-400' />
 
-    {/* comment input and post */}
+    {/* INPUT */}
     <div className='flex items-center justify-end px-2'>
       <input 
       type="text"
       value={content}
-      onChange={(e)=> setContent(e.target.value)}
+      onChange={handleCommentChange}
       className=' w-full border-slate-500 text-sm px-2 py-4 focus:outline-none'
       placeholder='Add a comment'
       required
@@ -105,7 +126,7 @@ useEffect(()=>{
        <button 
        className='text-sm disabled:cursor-not-allowed hover:scale-105 transition-all duration-300'
        onClick={addComment}
-       disabled={isSubmitting}
+       disabled={isSubmitting || !content.trim()}
        >
           {isSubmitting ? "Posting..." : "Post"}
        </button>
