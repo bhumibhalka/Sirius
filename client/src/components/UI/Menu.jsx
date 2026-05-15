@@ -1,139 +1,157 @@
 import { LogOut, X } from 'lucide-react'
-import React from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { toggleMenu } from '../../store/slices/popup.slice'
-import { useDispatch, useSelector } from 'react-redux'
+import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../store/slices/auth.slice'
+
+const userLinks = [
+  {
+    title: `Collection` ,
+    path: '/user/products',
+  },
+  {
+    title: 'Men',
+    path: '/user/products?category=Men',
+  },
+  {
+    title: 'Women',
+    path: '/user/products?category=Women',
+  },
+  {
+    title: 'Statement',
+    path: '/user/products?category=Statement',
+  },
+  {
+    title: 'Social Media',
+    path: '/social'
+  }
+
+]
+
+const sellerLinks = [
+  {
+    title: 'Manage Products ',
+    path: '/seller/manage-products',
+  },
+  {
+    title: 'Manage Orders ',
+    path: '/seller/manage-orders',
+  },
+  {
+    title: 'Manage Products ',
+    path: '/seller/manage-products',
+  },
+  {
+    title: 'Social Media ',
+    path: '/social',
+  },
+
+]
 
 const Menu = () => {
 
   const dispatch = useDispatch();
-   const {user, loading} = useSelector(state => state.auth)
-   const {isMenuOpen} = useSelector(state => state.popup)
-
-   const closeMenu = () => {
+  const {user, loading, isMenuOpen} = useSelector((state) => ({
+    user: state.auth.user,
+    loading: state.auth.loading,
+    isMenuOpen: state.popup.isMenuOpen,
+  }),
+  shallowEqual
+)
+   const closeMenu = useCallback(() => {
     dispatch(toggleMenu());
-   }
+   },[dispatch])
+
    
-   const handleLogout = () => {
+   const handleLogout = useCallback(() => {
     dispatch(logout())
     closeMenu()
-   }
+   },[dispatch, closeMenu])
+
+   const navigationLinks = useMemo(() => {
+
+    if(user?.role === 'seller'){
+      return sellerLinks(user?.username);
+    }
+
+    return userLinks;
+   },[user])
+
+   if(!isMenuOpen) return null;
+
 
   return (
-    <div className={`${user?.role === "user" ? "bg-blue-300/50 " : "bg-black/50 "}z-50 inset-0 fixed flex items-center justify-center backdrop-blur-sm  `}>
-     <div className={`${user?.role === "user" ? "bg-blue-400/50" : "bg-black/50"} p-4 w-full max-w-md rounded-lg border border-white/50 pb-10 shadow-lg`}>
+    <div 
+    className={`
+      ${user?.role === "user" 
+        ? "bg-blue-300/50 " 
+        : "bg-black/50 "
+      }
+         z-50 inset-0 fixed flex items-center justify-center backdrop-blur-sm  `}
+    >
+
+     <div
+      className={`
+      ${user?.role === "user" 
+      ? "bg-blue-400/50" 
+      : "bg-black/50"
+     }
+      p-4 w-full max-w-md rounded-lg border border-white/50 pb-10 shadow-lg`}
+     >
+
+        {/* CLOSE BUTTON */}
       <div className='flex justify-end'>
-        <X className='text-white hover:scale-110 transition-all duration-300 hover:shadow-sm' onClick={()=> dispatch(toggleMenu())} />
+        <button
+        onClick={closeMenu}
+        aria-label='Close Menu'
+        >
+
+        <X className='text-white hover:scale-110 transition-all duration-300 hover:shadow-sm' />
+
+        </button>
+
         </div>
 
-      {
-       user?.role === "user" && (
-        <div>
+   
         <ul className='flex items-center justify-center flex-col gap-2 text-white'>
 
-           <li className='hover:scale-105 transition-all duration-300'
-           onClick={closeMenu}
-           >
-            <Link to="/user/products">Collection</Link>
+          {
+            navigationLinks.map((item)=> (
+               <li 
+               key={item.title}
+               className='hover:scale-105 transition-all duration-300'
+           onClick={closeMenu}>
+              <Link to={item.path}
+              onClick={closeMenu}
+              >
+              {item.title}
+              </Link>
             </li>
-
-            <li className='hover:scale-105 transition-all duration-300'
-            onClick={closeMenu}
-            >
-              <Link to="/user/products?category=Men">
-            Mens
-            </Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'
-            onClick={closeMenu}
-            >
-              <Link to="/user/products?category=Women">
-            Women
-            </Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'
-            onClick={closeMenu}
-            >
-              <Link to="/user/products?category=Statement">
-            Statement
-            </Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'
-            onClick={closeMenu}
-            >
-              <Link to="/social">
-            Social Media
-            </Link>
-            </li>
-
+            ))
+          }
         </ul>
 
+          {/* LOGOUT */}
          <div className=''>
           <button
           className='flex gap-2 text-center items-center justify-center w-full mt-4 text-lg font-semibold text-white hover:scale-110 transition-all duration-300'
           onClick={handleLogout}
+          disabled={loading}
           >
+
             <LogOut />
-            {loading? "Logging out..." : "Logout"}
+
+             {loading? "Logging out..." : "Logout"}
+
           </button>
+
         </div>
-      </div>
-       )
-      }
-
-      {user?.role === "seller" && (
-        <div>
-        <ul className='flex items-center justify-center flex-col gap-2 text-white text-lg'>
-
-           <li className='hover:scale-105 duration-300 hover:shadow-2xl'>
-            <Link to="/seller/manage-products" onClick={closeMenu}>Manage Products</Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'>
-              <Link to="/seller/manage-orders" onClick={closeMenu}>
-            Manage Orders
-            </Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'>
-              <Link to="/notifications" onClick={closeMenu}>
-            Notifications
-            </Link>
-            </li>
-
-            <li className='hover:scale-105 transition-all duration-300'>
-              <Link to={`/social/profile/${user.username}`} onClick={closeMenu}>
-            Social Profile
-            </Link>
-            </li>
-
-
-        </ul>
-
-        <div className=''>
-          <button
-          className='flex gap-2 text-center items-center justify-center w-full mt-4 text-lg font-semibold text-white hover:scale-110 transition-all duration-300'
-          onClick={handleLogout}
-          >
-            <LogOut />
-            {loading? "Logging out..." : "Logout"}
-          </button>
-        </div>
-
-
-      </div>
-      )}
-      
-
-
 
      </div>
+     
     </div>
   )
 }
 
-export default Menu
+export default memo(Menu) ;

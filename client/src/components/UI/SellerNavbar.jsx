@@ -1,9 +1,10 @@
 import {  MenuIcon } from 'lucide-react'
-import React, { memo, useCallback } from 'react'
+import React, { lazy, memo, Suspense, useCallback } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { toggleMenu } from '../../store/slices/popup.slice'
-import Menu from './Menu'
+
+const Menu = lazy(()=> import('./Menu'))
 
 const navLinks = [
   {
@@ -38,12 +39,14 @@ shallowEqual
     <header  className=' bg-black/60 inset-0 backdrop-blur-sm z-50 fixed shadow-2xs h-14 text-white block'  >
       <nav className='flex items-center justify-between max-w-6xl mx-auto px-10  h-14'>
  
-         <div className='w-full tracking-widest text-lg font-bold '
+         <Link
+         to={'/'}
+         className='w-full tracking-widest text-lg font-bold '
          
          >
           {/* <img src="" alt="" /> */}
           LUMIÈRE
-          </div>       
+          </Link>       
 
           <ul className='flex items-center justify-evenly w-full max-sm:hidden text-sm  '>
 
@@ -62,22 +65,22 @@ shallowEqual
 
         </ul>
 
-        <div className='sm:hidden block'
+        <button className='sm:hidden block'
         onClick={openMenu}
         >
           <MenuIcon />
-        </div>
+        </button>
 
       </nav>
 
     </header>
+
+    <Suspense fallback={null}>
       {isMenuOpen && <Menu />}
+    </Suspense>
       </>
   )
 }
 
 export default memo(SellerNavbar)
 
-//manage products
-//manage order
-//social media profile
