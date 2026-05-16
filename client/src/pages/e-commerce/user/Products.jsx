@@ -1,35 +1,99 @@
 import { LucideShoppingCart, Search, ShoppingBag, ShoppingCart, ShoppingCartIcon, Star } from 'lucide-react'
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import React, { memo, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {  fetchProducts, filterProducts } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
+const CATEGORY_OPTIONS = [
+  'all', 'Limited Edition', 'Essentials', 'Accessories',
+  'Bags', 'Men', 'Women', 'Shoes', 'Bespoke', 'Statement',
+]
+
+const STAR_INDEXES = [1, 2, 3, 4, 5]
+
+const StarRating = memo(({rating}) => (
+   <div className='flex'>
+             { STAR_INDEXES.map((i) => (
+                <div key={i} className=' '>
+                   <Star className={` size-sm ${ i <= rating ? "fill-yellow-500 text-yellow-500" :""}`} />
+                </div>
+              ))}
+            </div>  
+))
+StarRating.displayName = 'StarRating';
+
+const ProductCard = memo(({ product, onAddToCart, onNavigate }) => {
+  const price = product?.variants?.[0]?.price
+  const imgUrl = product?.media?.[0]?.url
+  const rating = product?.metrics?.averageRating ?? 0
+  return (
+      <div
+          key={product._id}
+          className='border-white border p-2 rounded-lg hover:scale-103 transition-all duration-300'
+          >
+
+            <div className='space-y-2'>
+              {/* image */}
+            <div className='bg-white rounded-lg hover:scale-103 transition-all duration-300' 
+            onClick={() => onNavigate(product._id)}
+            >
+              <img 
+              src={imgUrl} 
+              alt={product?.title || 'Product'}
+              loading ="lazy" 
+              className='h-[60vh] w-full object-contain '/>
+            </div>
+
+            {/* price and title */}
+            <div className='flex items-center justify-between mx-'>
+              <h3 className='text-lg font-semibold'>{product?.title || 'Product'}</h3>
+              <h3 className='text-lg font-bold'>${price}</h3>
+            </div>
+
+
+            {/* STARS */}
+           <StarRating rating={rating} />
+
+              {/* button */}
+            <button 
+            className='flex items-center justify-center w-full bg-white text-black py-2 rounded font-semibold gap-1 hover:cursor-pointer hover:scale-102 transition-all duration-300 '
+            onClick={() => onAddToCart(product)} 
+            >
+              <LucideShoppingCart />
+              <p>Add to Cart</p>
+            </button>
+            
+          </div>
+          </div>
+  )
+})
+ProductCard.displayName = 'ProductCard'
+
 const Products = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const {user} = useSelector(state => state.auth);
-
-  const {products} = useSelector(state => state.product)
-  // console.log(products);
-  
   const location = useLocation();
 
-  // MEMOIZED QUERY PARAM PARSING   
+  const user = useSelector(state => state.auth.user);
+  const products = useSelector(state => state.product.products)
+  console.log(products);
+  console.log("user:", user);
+  
 
-  const categoryFromURL = useMemo(()=>{
-    const queryParams = new URLSearchParams(
-      location.search
-    );
-
-    return queryParams.get("category") || "all";
-  },[location.search])
- 
+  // Parse category from URL once, only when search string changes
+  const categoryFromURL = useMemo(() => {
+    return new URLSearchParams(location.search).get('category') || 'all'
+  }, [location.search])
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCategory, setfilteredCategory] = useState(categoryFromURL);
+
+    // Sync local state if URL changes externally (e.g. browser back/forward)
+  useEffect(()=> {
+    setfilteredCategory(categoryFromURL)
+  },[categoryFromURL])
 
   // DEFERRED SEARCH VALUE              
 
@@ -37,33 +101,41 @@ const Products = () => {
 
   //  MEMOIZED FILTER PAYLOAD      
 
-  const filterPayload = useMemo(()=>{
-    return {
-      search: deferredSearch,
-      category: 
-      filteredCategory === "all"
-      ? ""
-      : filteredCategory,
-      cursor: null,
-    }
-  },[deferredSearch, filteredCategory])
+  // const filterPayload = useMemo(()=>{
+  //   return {
+  //     search: deferredSearch,
+  //     category: 
+  //     filteredCategory === "all"
+  //     ? ""
+  //     : filteredCategory,
+  //     cursor: null,
+  //   }
+  // },[deferredSearch, filteredCategory])
 
   // FETCH PRODUCTS       
 
+    // Debounced dispatch – 400 ms after the user stops typing/filtering
   useEffect(() => {
     if(user?.role === "user") {
       const timeout = setTimeout(()=> {
-        dispatch(filterProducts(filterPayload))
+
+       console.log("USE EFFECT RUNNING")
+        dispatch(filterProducts({
+        search: deferredSearch,
+        category: filteredCategory === 'all' ? '' : filteredCategory,
+        cursor: null,
+      }))
       },400);
 
       return () => clearTimeout(timeout);
     }
-  }, [dispatch, filterPayload, user?.role])
+  }, [dispatch,filteredCategory, deferredSearch, user?.role])
+
 
   // MEMOIZED HANDLERS               
 
   const handleAddToCart = useCallback((product)=> {
-    // if(!product) return;
+    if(!product) return;
 
     dispatch(addToCart({
       productId : product._id,
@@ -78,7 +150,6 @@ const Products = () => {
 
  const handleCategoryChange = useCallback((e)=> {
   const value = e.target.value;
-
   setfilteredCategory(value);
 
   navigate(
@@ -88,28 +159,10 @@ const Products = () => {
   )
  },[navigate])
 
- const handleSearchChange = useCallback((e) => {
-  setSearchQuery(e.target.value);
- },[])
+
 
 // MEMOIZED PRODUCT GRID   
 // avoids recalculating map     
-
- const renderedProducts = useMemo(()=> {
-  if(!products?.length) {
-    return (
-      <div>
-      <p>No products found!!!</p>
-      </div>
-    )
-  }
-
-  return products.map((product) => {
-    
-  })
- })
-
-
 
    // useEffect(()=> {
   //   if(user?.role === 'user'){
@@ -161,16 +214,9 @@ const Products = () => {
          )
       }}
       >
-        <option value="all">All</option>
-        <option value="Limited Edition">Limited Edition</option>
-        <option value="Essentials">Essentials</option>
-        <option value="Accessories">Accessories</option>
-        <option value="Bags">Bags</option>
-        <option value="Men">Men</option>
-        <option value="Women">Women</option>
-        <option value="Shoes">Shoes</option>
-        <option value="Bespoke">Bespoke</option>
-        <option value="Statement">Statement</option>
+      {CATEGORY_OPTIONS.map((cat) => (
+        <option key={cat} value={cat}>{cat === 'all' ? 'All' : cat}</option>
+      ))}
       </select>
     </div>
 
@@ -182,45 +228,12 @@ const Products = () => {
       products && products.length > 0 
       ? (
         products.map((product) => (
-          <div
-          key={product._id}
-          className='border-white border p-2 rounded-lg hover:scale-103 transition-all duration-300'
-          >
-
-            <div className='space-y-2'>
-              {/* image */}
-            <div className='bg-white rounded-lg hover:scale-103 transition-all duration-300' 
-            onClick={() => navigate(`/user/product/${product._id}`)}
-            >
-              <img src={product?.media?.[0]?.url} alt="img" className='h-[60vh] w-full object-contain '/>
-            </div>
-
-            {/* price and title */}
-            <div className='flex items-center justify-between mx-'>
-              <h3 className='text-lg font-semibold'>{product?.title}</h3>
-              <h3 className='text-lg font-bold'>${product?.variants?.[0]?.price}</h3>
-            </div>
-
-            {/* stars */}
-            <div className='flex'>
-             { [1,2,3,4,5].map((i) => (
-                <div key={i} className=' '>
-                   <Star className={` size-sm ${ i <= product.metrics.averageRating ? "fill-yellow-500 text-yellow-500" :""}`} />
-                </div>
-              ))}
-            </div>
-
-              {/* button */}
-            <button 
-            className='flex items-center justify-center w-full bg-white text-black py-2 rounded font-semibold gap-1 hover:cursor-pointer hover:scale-102 transition-all duration-300 '
-            onClick={() => handleAddToCart(product)} 
-            >
-              <LucideShoppingCart />
-              <p>Add to Cart</p>
-            </button>
-            
-          </div>
-          </div>
+        <ProductCard
+        key={product._id}
+        product={product}
+        onAddToCart={handleAddToCart}
+        onNavigate={handleNavigate}
+        />
         ))
       ) 
       : (<div>

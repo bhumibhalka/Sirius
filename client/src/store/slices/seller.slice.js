@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 export const fetchSellerOrders = createAsyncThunk("fetchSellerOrders", async({status, cursor}, {rejectWithValue})=> {
   try {
-    const  url = `/order/seller/orders?status=${status || ''}&cursor=${cursor || ''}`;
+    const  url = `/order/seller-orders?status=${status || ''}&cursor=${cursor || ''}`;
 
     const res = await axiosInstance.get(url)
     return res?.data;

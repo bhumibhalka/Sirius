@@ -71,7 +71,7 @@ shallowEqual)
             
             <input 
             type="email"
-            name='eamil'
+            name='email'
             className='input-black'
             placeholder='Enter your email'
             value={formData.email}

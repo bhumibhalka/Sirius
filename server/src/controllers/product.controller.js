@@ -177,8 +177,8 @@ export const filterProducts = asyncHandler(async(req,res,next) => {
     ]
   }
 
-  if(cursor) query.createdAt = {$lt : new Date(cursor)}
-
+  if(cursor) {query.createdAt = {$lt : new Date(cursor)}
+}
   const products = await Product.find(query)
   .sort({createdAt: -1})
   .limit(Number(limit))

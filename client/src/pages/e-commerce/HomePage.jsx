@@ -1,20 +1,22 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import Navbar from '../../components/UI/Navbar'
 import {Link } from "react-router-dom"
-import ShopTheLook from '../../components/UI/ShopTheLook'
-import TheEssentials from '../../components/UI/TheEssentials'
-import Footer from "../../components/UI/Footer"
+
+const ShopTheLook = lazy(() => import('../../components/UI/ShopTheLook'))
+const TheEssentials = lazy(() => import('../../components/UI/TheEssentials'))
+const Footer = lazy(() => import('../../components/UI/Footer'))
+
+const SectionFallback = () => {
+  <div className='w-full animate-spin bg-slate-200 min-h-[40vh]'/>
+}
+
 
 const HomePage = () => {
   return (
     <div >
+        <main >
 
-
-        {/* <Navbar className='shadow' /> */}
-
-        <main className=''>
-
-          {/* main */}
+          {/* HERO */}
         <section className='bg-[url("/images.jpeg")] bg-no-repeat bg-cover bg-center h-screen w-full flex items-center justify-center text-white text-center'>
            <div>
             <p className="text-xs tracking-widest">ELEGANCE REDEFINED</p>
@@ -27,11 +29,11 @@ const HomePage = () => {
            </div>
         </section>
 
+      {/* SHOP THE LOOK */} 
+       <Suspense fallback={<SectionFallback />}>
+         <ShopTheLook />
+       </Suspense>
 
-      {/* SHOP THE LOOK */}
-        <div>
-        <ShopTheLook />
-        </div>
 
 
       {/* QUOTE */}
@@ -54,14 +56,15 @@ const HomePage = () => {
           </div>
         </section>
     
-
-        <div className=''>
-
-       <TheEssentials />
-        </div>
+    {/* THE ESSENTIALS */}
+      <Suspense fallback={<SectionFallback />}>
+         <TheEssentials />
+      </Suspense>
       
        {/* FOOTER */}
-       <Footer />
+      <Suspense fallback={<SectionFallback />}>
+         <TheEssentials />
+      </Suspense>
         
         </main>
     

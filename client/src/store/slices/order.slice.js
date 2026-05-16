@@ -38,6 +38,16 @@ export const fetchMyOrders = createAsyncThunk("fetchOrders", async(cursor, {reje
   }
 })
 
+// export const getSellerOrders = createAsyncThunk("getSellerOrders", async({status, cursor}, {rejectWithValue}) => {
+//   try {
+//     const res = await axiosInstance.get(`/order/seller-orders?status=${status || ''}&cursor=${cursor || ''}`)
+//     return res?.data;
+//   } catch (error) {
+//     // toast.error(error?.response?.data || 'Failed to fetch seller orders')
+//     return rejectWithValue(error?.response?.data || 'Failed to fetch seller orders')
+//   }
+// })
+
 
 
 const orderSlice = createSlice({

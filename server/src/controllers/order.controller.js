@@ -4,7 +4,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import { ENV } from "../lib/ENV.js";
 
 
-export const placeOrder = asyncHandler(async(req,res,next) => {
+export const placeOrder = asyncHandler(async(req,res,next) => { 
  const {items, shippingAddress } = req.body;
  const userId = req.user.id;
  
@@ -78,44 +78,82 @@ export const getOrders = asyncHandler(async(req,res,next) => {
 })
 
 export const getSellerOrders = asyncHandler(async(req,res,next) => {
-  const { status, cursor, limit = 10} = req.query;
+  const {status, cursor, limit = 10} = req.query;
   const sellerId = req.user.id;
 
-  const query = {'items.sellerId' : sellerId};
+  const query = {"items.sellerId" : sellerId};
 
-  if(status) query.status = status;
-  
-  if(cursor) query.createdAt = {$lt: new Date(cursor)};
+  if(cursor) query.createdAt = { $lt : new Date(cursor) }
 
   const orders = await Order.find(query)
-  .sort({createdAt: -1})
   .limit(Number(limit))
+  .sort({createdAt: -1})
   .lean();
 
   const sellerView = orders.map((order) => {
-    const myItems = order.items.filter((item) => item.sellerId === sellerId)
-    const mySubtotal = myItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const myItems = order.items.filter(item => item.sellerId === sellerId);
+    const mySubtotal = myItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
-    return {
+    return ({
       _id: order._id,
       status: order.status,
       customerName: order.customerName,
       items: myItems,
       subtotal: mySubtotal,
       createdAt: order.createdAt,
-      shippingAddress: order.shippingAddress
-    }
+      shippingAddress: order.shippingAddress,
+
+    })
   })
 
-  const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1].createdAt : null;
+  const nextCursor = orders.length === Number(limit) ? orders[orders.length -  1].createdAt : null;
 
   res.status(200).json({
     success: true,
     data: sellerView,
     nextCursor,
   })
-
 })
+
+// export const getSellerOrders = asyncHandler(async(req,res,next) => {
+//   const { status, cursor, limit = 10} = req.query;
+//   const sellerId = req.user.id;
+
+//   const query = {'items.sellerId' : sellerId};
+
+//   if(status) query.status = status;
+  
+//   if(cursor) query.createdAt = {$lt: new Date(cursor)};
+
+//   const orders = await Order.find(query)
+//   .sort({createdAt: -1})
+//   .limit(Number(limit))
+//   .lean();
+
+//   const sellerView = orders.map((order) => {
+//     const myItems = order.items.filter((item) => item.sellerId === sellerId)
+//     const mySubtotal = myItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+//     return {
+//       _id: order._id,
+//       status: order.status,
+//       customerName: order.customerName,
+//       items: myItems,
+//       subtotal: mySubtotal,
+//       createdAt: order.createdAt,
+//       shippingAddress: order.shippingAddress
+//     }
+//   })
+
+//   const nextCursor = orders.length === Number(limit) ? orders[orders.length - 1].createdAt : null;
+
+//   res.status(200).json({
+//     success: true,
+//     data: sellerView,
+//     nextCursor,
+//   })
+
+// })
 
 
 
@@ -158,3 +196,4 @@ export const getSellerOrders = asyncHandler(async(req,res,next) => {
 //   })
 
 // })
+

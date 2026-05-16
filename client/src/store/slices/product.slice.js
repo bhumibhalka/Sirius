@@ -78,8 +78,11 @@ export const getProduct = createAsyncThunk("getProduct", async(id, thunkAPI)=> {
 })
 
 export const filterProducts = createAsyncThunk("filterProducts", async({cursor,search, category}, {rejectWithValue}) => {
+
+   console.log("FILTER THUNK STARTED")
   try {
     const res = await axiosInstance.get(`/product/filter?search=${search || ''}&category=${category || ''}&cursor=${cursor || ''}`);
+    console.log(res?.data, "products res");
     return res?.data;
   } catch (error) {
     toast.error(error?.response?.data || 'Failed to filter products')
