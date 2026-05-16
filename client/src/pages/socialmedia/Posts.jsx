@@ -1,13 +1,44 @@
-import React from 'react'
+import React, { memo } from 'react'
 import EcommerceSidebar from '../../components/UI/EcommerceSidebar'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react';
 import { fetchAllPosts } from '../../store/slices/social-media/post.slice';
 
+const PostTile = memo(({post}) => {
+  const mediaItem = post?.media?.[0]
+  return (
+      <div className=" bg-white border hover:scale-105 transition-all duration-300  h-[130px] "
+          >
+           {
+            post?.media?.[0]?.type === "images" && (
+              <img src={mediaItem.url} alt="" className="w-full h-[220px] bg-white"
+              loading='lazy'
+              />
+            )
+           }
+
+          
+           {
+            mediaItem?.type === "videos" && (
+             <video src={mediaItem.url} 
+             className='w-full h-full object-cover'
+             preload='none' // don't buffer video data for off-screen tiles
+             muted
+             />
+            )
+           }
+
+          
+          </div>
+  )
+})
+PostTile.displayName = 'PostTile'
+
 const Posts = () => {
 
   const dispatch = useDispatch();
-  const {userPosts, loading} = useSelector(state => state.post);
+  const userPosts = useSelector(state => state.post.userPosts)
+  const loading = useSelector(state => state.post.loading)
    console.log('POSTS FROM STORE:', userPosts);
 console.log('LOADING:', loading);
   useEffect(()=>{
@@ -26,27 +57,12 @@ console.log('LOADING:', loading);
      {
       userPosts && userPosts.length > 0 ? (
         userPosts.map(post => (
-          <div
+          <PostTile 
           key={post._id}
-          className=" bg-white border hover:scale-105 transition-all duration-300  h-[130px] "
-          >
-           {
-            post?.media?.[0]?.type === "images" && (
-              <img src={post?.media?.[0]?.url} alt="" className="w-full h-[220px] bg-white" />
-            )
-           }
-
-          
-           {
-            post?.media?.[0]?.type === "videos" && (
-             <video src={post?.media?.[0]?.url}></video>
-            )
-           }
-
-          
-          </div>
+          post={post}
+          />
         ))
-      ) : (<div>
+      ) : (<div className="col-span-3 flex items-center justify-center text-white py-8"> 
         <p>No posts yet!!! Be the first one to post</p>
       </div>)
      }
