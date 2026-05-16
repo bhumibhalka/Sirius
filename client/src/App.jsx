@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { memo, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -29,65 +29,69 @@ import AdminLayout from './components/layout/AdminLayout'
 import { Loader } from 'lucide-react'
 
 
-const getHomeRoute = (role) => {
-switch (role) {
- case "admin":
-   return "/admin";
- case "seller":
-   return "/seller";
- case "user":
-   return "/user";
- default:
-   return "/";
-}
-};
 
-const App = () => {
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate()
-  const {user,loading, isAuthenticated} = useSelector(state => state.auth);
-  
-  
-  const ProtectedRoute = ({children, allowedRoles}) => {
-    if(!user) {
-      return <Navigate to={'/login'} replace/>
-    }
-    
-    if(allowedRoles?.length && 
-      user?.role && 
-      !allowedRoles.includes(user.role)){
-        const redirectPath =
-        user.role === 'admin'
-        ? "/admin"
-        : user.role === 'seller'
-        ? "/seller"
-        : '/user';
-        
-        
-        return <Navigate to={redirectPath} replace />
-      }
-      return children;
-    }
-    
-  useEffect(()=> {
-    dispatch(getUser())
-  },[])
-
-    useEffect(()=>{
-      if(user?.role === 'seller'){
-        dispatch(fetchUserProducts())
-      }
-    },[user?.role, dispatch])
-    
-    if (loading) return <div className='flex flex-col items-center justify-center h-screen'>
+const PageLoader = () => (
+  <div className='flex flex-col items-center justify-center h-screen'>
       
       <Loader className='animate-spin' size={28} />
     <p className='font-semibold'>Loading...</p>  
       
-      </div>;
+      </div>
+)
+
+const ROLE_HOME = {
+  admin:  '/admin',
+  seller: '/seller',
+  user:   '/user',
+}
+
+const getHomeRoute = (role) => ROLE_HOME[role] ?? '/'
+
+const ProtectedRoute = memo(({children, allowedRoles, user}) => {
+  if(!user){
+    return <Navigate to={'login'} replace /> 
+  }
+
+  if(allowedRoles?.length && user?.role && !allowedRoles.includes(user.role)){
+    return <Navigate 
+    to={getHomeRoute(user.role)}
+    replace
+    />
+  }
+
+  return children
+})
+ProtectedRoute.displayName = 'ProtectedRoute'
+
+const App = () => {
+
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.auth.user);
+  const loading= useSelector(state => state.auth.loading);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const userRole = useSelector(state => state.auth.user?.role)
+  
+  
+
+    
+      // Fetch session on mount
+  useEffect(()=> {
+    dispatch(getUser())
+  },[dispatch])
+
+  // Fetch seller products once role is confirme
+    useEffect(()=>{
+      if(userRole === 'seller'){
+        dispatch(fetchUserProducts())
+      }
+    },[userRole, dispatch])
+    
+    if (loading) return <PageLoader /> ;
     
   return (
+
+    <Suspense fallback={<PageLoader />} >
+
     <Routes >
       <Route
       path='/'
@@ -106,7 +110,7 @@ const App = () => {
       <Route
       path="/admin"
       element={
-        <ProtectedRoute allowedRoles={["admin"]}>
+        <ProtectedRoute allowedRoles={["admin"]} user={user}>
             <AdminLayout />
         </ProtectedRoute>
       }
@@ -121,7 +125,7 @@ const App = () => {
       <Route 
       path="/user"
       element={
-        <ProtectedRoute allowedRoles={["user"]} >
+        <ProtectedRoute allowedRoles={["user"]} user={user} >
           <EcommerceLayout />
         </ProtectedRoute>
       }
@@ -138,7 +142,7 @@ const App = () => {
       <Route
       path='/seller'
       element={
-        <ProtectedRoute allowedRoles={["seller"]}>
+        <ProtectedRoute allowedRoles={["seller"]} user={user}>
            <EcommerceLayout />
         </ProtectedRoute>
       }
@@ -164,6 +168,7 @@ const App = () => {
       <Route path='/payment-success' element={<PaymentSuccess />} />
       <Route path='*' element={ <PageNotFound />} />
     </Routes>
+   </Suspense>
   )
 }
 

@@ -16,7 +16,7 @@ const navLinks  = [
   },
   {
     icon: VideoIcon,
-    title: 'Reels',
+    title: 'Reels(currently unavaliable)',
     path: '/social/reels',
   },
   {
@@ -26,7 +26,7 @@ const navLinks  = [
   },
   {
     icon: MessageCircle,
-    title: 'Notifications',
+    title: 'Notifications(currently unavaliable)',
     path: '/social/notifications'
   },
 ]
@@ -81,7 +81,8 @@ const EcommerceSidebar = () => {
               className='hver:bg-slate-700 rounded-lg'
               >
                 <Link 
-                className='flex gap-2 p-2'
+                to={`${item.path}`}
+                className='flex gap-2 p-2 hover:bg-slate-700 rounded-lg transition-colors duration-300'
                 >
                 <Icon />
                 <p>{item.title}</p>
