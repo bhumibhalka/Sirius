@@ -39,10 +39,6 @@ const sellerLinks = [
     path: '/seller/manage-orders',
   },
   {
-    title: 'Manage Products ',
-    path: '/seller/manage-products',
-  },
-  {
     title: 'Social Media ',
     path: '/social',
   },
@@ -69,14 +65,11 @@ const Menu = () => {
     closeMenu()
    },[dispatch, closeMenu])
 
-   const navigationLinks = useMemo(() => {
-
-    if(user?.role === 'seller'){
-      return sellerLinks(user?.username);
-    }
-
-    return userLinks;
-   },[user])
+   const navigationLinks = 
+   user?.role === 'seller'
+     ?  sellerLinks
+    :  userLinks;
+   
 
    if(!isMenuOpen) return null;
 
@@ -123,7 +116,7 @@ const Menu = () => {
                className='hover:scale-105 transition-all duration-300'
            onClick={closeMenu}>
               <Link to={item.path}
-              onClick={closeMenu}
+             
               >
               {item.title}
               </Link>
@@ -149,7 +142,7 @@ const Menu = () => {
         </div>
 
      </div>
-     
+
     </div>
   )
 }

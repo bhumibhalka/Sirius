@@ -1,56 +1,115 @@
-import { Calendar, CheckCircle, DollarSign, DollarSignIcon, Plus, RefreshCwIcon, Truck, XCircle } from 'lucide-react'
-import React, { useEffect } from 'react'
+import { 
+  Calendar, 
+  CheckCircle, 
+  DollarSign, 
+  Plus, 
+  RefreshCwIcon, 
+  Truck, 
+  XCircle
+ } from 'lucide-react'
+import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSellerOrders } from '../../../store/slices/seller.slice';
 
-const ManageOrders = () => {
-  const dispatch = useDispatch();
 
-  const orders = useSelector(state => state.seller?.orders) || {};
-
-  const stats = [
+ 
+  const STATUS_STATS = [
     {
       title: "Pending",
       icon: Calendar ,
-      value : orders?.filter(order => order.status === "pending").length
+      status: 'pending'
     },
     {
       title: "Processing",
       icon: RefreshCwIcon,
-      value : orders?.filter(order => order.status === "processing").length
+      status: 'processing'
     },
     {
       title: "Shipped",
       icon: Truck,
-      value : orders?.filter(order => order.status === "shipped").length
+      status: 'shipped'
     },
     {
       title: "Delivered",
       icon: CheckCircle,
-      value : orders?.filter(order => order.status === "delivered").length
+      status: 'shipped'
     },
     {
       title: "Cancelled",
       icon: XCircle,
-      value : orders?.filter(order => order.status === "cancelled").length
+      status: 'cancelled'
     },
     {
       title: "Paid",
       icon: DollarSign,
-      value : orders?.filter(order => order.status === "paid").length
+      status: 'paid'
     },
   ]
+
+  const StatCard = React.memo(({title, icon:Icon, value}) => {
+    return (
+        <div className='black-card max-sm:flex    max-sm:items-cenmax-sm:justify-between' >
+        <div className='flex items-center gap-2'>
+         <Icon />
+         <h4 className='font-semibold'>{title}</h4>
+        </div>
+        <div className='font-bold text-xl'>
+          {value}
+        </div>
+      </div>
+    )
+  })
+  StatCard.displayName = 'StatCard'
+
+  const OrderRow = React.memo(({ order }) => {
+    return (
+       <tr className='black-card border border-b ' >
+        <td className='px-4 py-2'>#{order._id.slice(0,10)}..</td>
+        <td className='px-4 py-2'>{order.createdAt.split("T")[0]}</td>
+         <td className='px-4 py-2'>{order.customerName}</td>
+         <td className='px-4 py-2'>${order.subtotal}</td>
+         <td className='px-4 py-2'>{order.status}</td>
+         <td className='px-4 py-2'>
+          <button>Details</button>
+         </td>
+       </tr>      
+    )
+  })
+  OrderRow.displayName = 'OrderRow';
+
+
+const ManageOrders = () => {
+  const dispatch = useDispatch();
+
+  // Granular selector – avoids re-render when unrelated seller slice keys change
+  const orders = useSelector(state => state.seller.orders) ;
 
   useEffect(()=> { 
     dispatch(fetchSellerOrders({ status: null, cursor: null}))
   },[dispatch]);
+
+  // Single pass over orders to build all 6 counts at once
+  // instead of 6 separate .filter() calls on every render
+  const statCounts = useMemo(()=>{
+    const counts = {}
+    STATUS_STATS.forEach(s => { counts[s.status] = 0})
+    if(Array.isArray(orders)) {
+      orders.forEach(order => {
+        if(counts[order.status] !== undefined)
+          counts[order.status]++
+      })
+    }
+    return counts
+  },[orders])
+
+  const safeOrders = orders ?? []
 
   console.log(orders);
 
   return (
     <div className='p-4 space-y-6'>
 
-    {/* header */}
+    {/* HEADERS */}
       <div className='flex items-center max-sm:flex-col gap-2 '>
       {/* heading */}
         <div className='w-full'>
@@ -73,41 +132,20 @@ const ManageOrders = () => {
 
       </div>
 
-      {/* stats */}
+      {/* STATS */}
        <div className='grid gird-cols-1 md:grid-cols-6 gap-4'>
     
         
           {
-            stats.map((stat) =>{
-              const Icon = stat.icon;
-              return (
-              <div
-              key={stat.title}
-              className='black-card max-sm:flex max-sm:items-center max-sm:justify-between'
-              >
-                <div className='flex items-center gap-2'>
-                {/* icon */}
-                <div>
-                  <Icon />
-                </div>
-
-                {/* title */}
-                <div>
-                  <h4 className='font-semibold'>{stat.title}</h4>
-                </div>
-                </div>
-                <div className='font-bold text-xl'>
-                  {stat.value}
-                </div>
-
-              </div>
-            )})
+            STATUS_STATS.map((stat) =>(
+              <StatCard key={stat.title} title={stat.title} value={stat.value} icon={stat.icon} />
+            ))
           }
        
 
        </div>
 
-       {/* products */}
+       {/* PRODUCTS */}
        <div className='overflow-x-auto w-full'>
         <table className='w-full'>
           <thead className='black-card '>
@@ -123,25 +161,10 @@ const ManageOrders = () => {
 
           <tbody>
             {
-              orders && orders.length > 0 
+              safeOrders?.length > 0 
               ? (
-                orders.map((order) => (
-                  <tr
-                  key={order.id}
-                  className='black-card border border-b '
-                  >
-                    <td className='px-4 py-2'>#{order._id.slice(0,10)}..</td>
-                    <td className='px-4 py-2'>{order.createdAt.split("T")[0]}</td>
-                    <td className='px-4 py-2'>{order.customerName}</td>
-                    <td className='px-4 py-2'>${order.subtotal}</td>
-                    <td className='px-4 py-2'>{order.status}</td>
-                    <td className='px-4 py-2'>
-                      <button>
-                        Details
-                      </button>
-                    </td>
-
-                  </tr>
+                safeOrders.map((order) => (
+                  <OrderRow key={order._id} order={order} />
                 ))
               ) 
               : (

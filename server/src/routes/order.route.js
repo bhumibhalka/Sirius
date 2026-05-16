@@ -24,7 +24,7 @@ router.get(
 )
 
 router.get(
-  '/seller/orders',
+  '/seller-orders',
   getSellerOrders
 )
 

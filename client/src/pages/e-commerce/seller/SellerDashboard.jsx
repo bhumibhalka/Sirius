@@ -1,73 +1,83 @@
 import { ArrowBigRight, ArrowBigRightIcon, Badge, Check, CheckCircle, CheckCircle2, DollarSign, ShoppingBag } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React, { memo, useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 
 const SellerDashboard = () => {
 
   const dispatch = useDispatch();
-  const {user} = useSelector(state => state.auth);
-  const {products} = useSelector(state => state.product)
-  const orders = useSelector(state => state.seller.orders)
 
-  const notificationColor = (priority) => {
+  const {user, products, orders} = useSelector((state) => ({
+    user: state.auth.user,
+    products: state.product.products,
+    orders: state.seller.orders,
+  }))
+
+  const notificationColor = useCallback((priority) => {
     switch (priority) {
       case "low":
         return "bg-green-300 text-green-700 border border-green-300 shadow "
-        break;
-    
+
       case "medium":
         return "bg-yellow-300 text-yellow-700 border border-yellow-300 shadow "
-        break;
     
       case "high":
         return "bg-red-300 text-red-700 border border-red-300 shadow "
-        break;
     
       default:
         return "bg-gray-300 text-gray-700 border border-gray-300 shadow "
-        break;
     }
-  }
+  },[])
 
-  const priorityColor = (priority) => {
+  const priorityColor = useCallback((priority) => {
     switch (priority) {
       case "low":
         return "bg-green-200 text-green-500 borde border-green-200 "
-        break;
 
       case "medium" :
         return "bg-yellow-200 text-yellow-500 "
-       break;
 
       case "high" :
         return "bg-red-200 text-red-500 "
-        break;
 
       default:
         return "text-gray-500"
-        break;
     }
-  }
+  }, [])
 
-  const stats = [
+  const totalSales = useMemo(()=> {
+    return orders?.reduce(
+      (acc,order) => acc + order.subtotal,
+     0
+    );
+  },[orders])
+  
+  const stats = useMemo(() => (
+    [
     {
       title: "TOTAL SALES",
       icon: DollarSign,
-      value: orders.reduce((acc, order) => acc + order.subtotal , 0)
+      value: `$${totalSales}`
     },
     {
       title: "TOTAL PRODUCTS",
       icon: Badge,
-      value: products.length,
+      value: products?.length || 0,
     },
     {
       title: "TOTAL ORDERS",
       icon: ShoppingBag,
-      value: orders.length,
+      value: orders?.length || 0,
     },
 
   ]
+  ),[orders, products, totalSales]) 
+
+  const topProducts = useMemo(() => {
+
+    return [...products] 
+    ?.slice(0, 4)
+  }, [products])
 
   return (
     <div className='bg-black/80  mt-14 p-8 min-h-screen space-y-6 md:space-y-10 '>
@@ -214,4 +224,4 @@ const SellerDashboard = () => {
   )
 }
 
-export default SellerDashboard
+export default memo(SellerDashboard) ;

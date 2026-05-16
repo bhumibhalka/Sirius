@@ -1,49 +1,12 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { memo, useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { getProduct } from '../../../store/slices/product.slice';
 import { addToCart } from '../../../store/slices/cart.slice';
 import { Loader } from 'lucide-react';
 
-const Product = () => {
-
-  const dispatch = useDispatch();
-  const product = useSelector(state => state.product.product); 
-  const {id} = useParams();
-
-  useEffect(()=> {
-    if(id) {
-      dispatch(getProduct(id));
-    }
-  },[id, dispatch])
-
-  // memoized product values
-  const productImage  = useMemo(()=> {
-    return product?.media?.[0]?.url || '';
-  },[product])
-
-  const productPrice = useMemo(() => {
-   return product?.variants?.[0]?.price || 0;
-  }, [product])
-
-  //stable add to CART functioN
-
-  const handleAddToCart = useCallback(()=> {
-
-    if(!product?._id) return;
-
-    dispatch(
-      addToCart({
-      productId: product._id,
-      quantity:  1,
-    })
-  )
-
-  },[dispatch, product])
-
-  
  // static data memoized
-   const stats = useMemo(() => [
+   const TRUST_STATS  = [
     {
       title: 'Trusted Luxury Brands',
       description:
@@ -59,9 +22,39 @@ const Product = () => {
       description:
         'Designed and perfected by skilled artisans, every piece reflects precision, attention to detail, and timeless craftsmanship.',
     },
-  ], [])
+  ]
 
-  if(!product) {
+  const TrustCard = memo(({title, description}) => {
+    return (
+      <div className='card mx-8 text-center'>
+         <h3 className='text-2xl font-semibold mb-3'>{title}</h3>
+         <p className=''>{description}</p>
+       </div>
+    )
+  })
+  TrustCard.displayName = 'TrustCard';
+
+const Product = () => {
+
+  const dispatch = useDispatch();
+  const {id} = useParams();
+  
+  const product = useSelector(state => state.product.product); 
+  const loading = useSelector(state => state.product.loading);
+
+  useEffect(()=> {
+    if(id) {
+      dispatch(getProduct(id));
+    }
+  },[id, dispatch])
+
+  const handleAddToCart = useCallback(() => {
+    if (!product?._id) return
+    dispatch(addToCart({ productId: product._id, quantity: 1 }))
+  }, [dispatch, product?._id]) // depend only on the id, not the whole product object
+
+  
+  if(loading || !product) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <Loader className='animate-spin' />
@@ -71,6 +64,11 @@ const Product = () => {
   }
 
 
+  // Read values directly in JSX – no useMemo needed for simple property access
+  // memoized product values
+  const productImage  = product?.media?.[0]?.url || ''
+
+  const productPrice = product?.variants?.[0]?.price ?? 0
 
   console.log(product);
   return (
@@ -104,11 +102,12 @@ const Product = () => {
 
       <div className='bg-black grid grid-cols-1 md:grid-cols-3 gap-4 py-8 '>
         {
-          stats.map((card) => (
-            <div className='card mx-8 text-center'>
-              <h3 className='text-2xl font-semibold mb-3'>{card.title}</h3>
-              <p className=''>{card.description}</p>
-            </div>
+          TRUST_STATS.map((card) => (
+            <TrustCard
+             key={card.title} 
+            title={card.title}
+            description={card.description}
+            />
           ))
         }
       </div>
