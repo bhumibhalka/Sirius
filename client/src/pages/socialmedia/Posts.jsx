@@ -7,11 +7,11 @@ import { fetchAllPosts } from '../../store/slices/social-media/post.slice';
 const PostTile = memo(({post}) => {
   const mediaItem = post?.media?.[0]
   return (
-      <div className=" bg-white border hover:scale-105 transition-all duration-300  h-[130px] "
+      <div className=" bg-white border hover:scale-105 transition-all duration-300 h-[220px] "
           >
            {
             post?.media?.[0]?.type === "images" && (
-              <img src={mediaItem.url} alt="" className="w-full h-[220px] bg-white"
+              <img src={mediaItem.url} alt="" className="h-[220px] w-[196px] bg-white"
               loading='lazy'
               />
             )
@@ -37,14 +37,14 @@ PostTile.displayName = 'PostTile'
 const Posts = () => {
 
   const dispatch = useDispatch();
-  const userPosts = useSelector(state => state.post.userPosts)
+  const homeFeedPosts = useSelector(state => state.post.homeFeedPosts)
   const loading = useSelector(state => state.post.loading)
-   console.log('POSTS FROM STORE:', userPosts);
+   console.log('POSTS FROM STORE:', homeFeedPosts);
 console.log('LOADING:', loading);
   useEffect(()=>{
     dispatch(fetchAllPosts(null)).then((result) => {
-    console.log('ACTION RESULT:', result);       // what redux got back
-    console.log('PAYLOAD:', result.payload);     // the actual data
+    // console.log('ACTION RESULT:', result);       // what redux got back
+    // console.log('PAYLOAD:', result.payload);     // the actual data
   });
   },[])
 
@@ -53,10 +53,10 @@ console.log('LOADING:', loading);
 
       <EcommerceSidebar  />
       
-    <div className='grid grid-cols-3 flex-1'>
+    <div className='grid lg:grid-cols-5 grid-cols-3 flex-1 ml-97 max-sm:ml-0'>
      {
-      userPosts && userPosts.length > 0 ? (
-        userPosts.map(post => (
+      homeFeedPosts?.length > 0 ? (
+        homeFeedPosts.map(post => (
           <PostTile 
           key={post._id}
           post={post}

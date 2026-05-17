@@ -227,15 +227,15 @@ console.log(homeFeedPosts);
   },[dispatch])
 
   return (
-    <div className="bg-black min-h-screen text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="bg-black min-h-screen text-white grid grid-cols-1 lg:grid-cols-3 gap-4" >
 
       {/* SIDEBAR */}
-      <div>
+      <div className="w-full md:w-[80px] lg:w-[300px]">
         <EcommerceSidebar />
       </div>
 
       {/* FEED */}
-      <div className="space-y-2 ml-2xl">
+      <div className="space-y-2 max-w-[600px] mx-auto w-full pb-20 md:pb-0">
         {isRefreshing && (
           <div className="flex items-center justify-center p-2 w-full">
             <Loader className="animate-spin" />
