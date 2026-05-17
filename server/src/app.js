@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from 'path';
 import { ENV } from "./lib/ENV.js";
 import fileUpload from "express-fileupload";
 import userRoutes from "./routes/auth.route.js";
@@ -52,6 +53,13 @@ app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/follow", followRoutes);
 
+const __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "/client/dist")))
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "/frontend/dist/index.html"));
+});
 app.use(errorMiddleware);
 
 export default app;

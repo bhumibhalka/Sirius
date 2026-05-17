@@ -65,14 +65,14 @@ const EcommerceSidebar = () => {
 
   return (
     // max-sm:hidden 
-    <header className='fixed bottom-0 left-0 right-0 h-16 bg-black border-t border-slate-800 z-50 px-4 flex flex-row items-center justify-around
+    <header className='fixed bottom-0 left-0 right-0 h-16 bg-black border-t border-slate-800 z-50 px-4 flex flex-row items-center justify-around  max-sm:justify-evenly
     
     /* MD Screens and up (Left Sidebar) */
     md:top-0 md:bottom-auto md:border-t-0 md:border-r md:border-slate-500 md:p-6 md:max-w-[240px] lg:max-w-sm md:w-full md:h-screen md:flex-col md:justify-start md:items-start text-white'>
       <nav className='space-y-3'>
 
         <div className='/* Mobile: horizontal row of items */
-        flex flex-row justify-around items-center w-full
+        flex flex-row justify-around items-center w-full 
         
         /* MD Screens: vertical column */
         md:flex-col md:items-stretch md:space-y-2 md:font-semibold'>
@@ -86,11 +86,11 @@ const EcommerceSidebar = () => {
             return (
               <div 
               key={item.title}
-              className='hver:bg-slate-700 rounded-lg'
+              className='hover:bg-slate-700 rounded-lg transition-colors duration-300 '
               >
                 <Link 
                 to={`${item.path}`}
-                className='flex gap-2 p-2 hover:bg-slate-700 rounded-lg transition-colors duration-300'
+                className='flex gap-2 p-2 rounded-lg '
                 >
                 <Icon />
                 <p className='max-md:hidden'>{item.title}</p>

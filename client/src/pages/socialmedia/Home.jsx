@@ -255,12 +255,12 @@ console.log(homeFeedPosts);
               onSave={handleSavePost}
             />
           ))
-        ) : (
+        ) :  (
           <p className="text-center py-8">
             No posts yet! Be the first one to upload a post.
           </p>
         )}
-
+     
         {status === 'loading' && !isRefreshing && (
           <div className="flex justify-center py-4">
             <Loader className="animate-spin" />

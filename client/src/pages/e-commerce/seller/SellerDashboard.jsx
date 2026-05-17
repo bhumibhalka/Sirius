@@ -67,7 +67,7 @@ const SellerDashboard = () => {
     {
       title: "TOTAL ORDERS",
       icon: ShoppingBag,
-      value: orders?.length || 0,
+      value: orders?.length ?? 0,
     },
 
   ]
