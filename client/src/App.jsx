@@ -27,6 +27,8 @@ import OrdersManagement from './pages/admin/OrdersManagement'
 import ProductManagement from './pages/admin/ProductManagement'
 import AdminLayout from './components/layout/AdminLayout'
 import { Loader } from 'lucide-react'
+import Reels from './pages/socialmedia/Reels'
+import Notification from './pages/Notification'
 
 
 
@@ -160,10 +162,12 @@ const App = () => {
      <Route index element={<Home />} />
      <Route path='profile/:username' element={<Profile />} />
      <Route path='posts' element={<Posts />} />
+     <Route path='reels' element={<Reels />} />
      </Route>
 
   {/* <Route path='/user' element={<HomePage />} /> */}
    
+      <Route path='/notifications' element={<Notification />} />
       <Route path='/settings' element={<Settings />} />      
       <Route path='/payment-success' element={<PaymentSuccess />} />
       <Route path='*' element={ <PageNotFound />} />

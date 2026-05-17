@@ -27,7 +27,7 @@ const navLinks  = [
   {
     icon: MessageCircle,
     title: 'Notifications(currently unavaliable)',
-    path: '/social/notifications'
+    path: '/notifications'
   },
 ]
 
@@ -64,10 +64,18 @@ const EcommerceSidebar = () => {
  },[dispatch])
 
   return (
-    <header className='max-sm:hidden border-r border-slate-500 p-6 max-w-sm w-full min-h-screen text-white h-screen fixed bg-black '>
+    // max-sm:hidden 
+    <header className='fixed bottom-0 left-0 right-0 h-16 bg-black border-t border-slate-800 z-50 px-4 flex flex-row items-center justify-around
+    
+    /* MD Screens and up (Left Sidebar) */
+    md:top-0 md:bottom-auto md:border-t-0 md:border-r md:border-slate-500 md:p-6 md:max-w-[240px] lg:max-w-sm md:w-full md:h-screen md:flex-col md:justify-start md:items-start text-white'>
       <nav className='space-y-3'>
 
-        <div className='font-semibold'>
+        <div className='/* Mobile: horizontal row of items */
+        flex flex-row justify-around items-center w-full
+        
+        /* MD Screens: vertical column */
+        md:flex-col md:items-stretch md:space-y-2 md:font-semibold'>
 
         {/* DYNAMIC NAVIGATION */}
         {
@@ -85,7 +93,7 @@ const EcommerceSidebar = () => {
                 className='flex gap-2 p-2 hover:bg-slate-700 rounded-lg transition-colors duration-300'
                 >
                 <Icon />
-                <p>{item.title}</p>
+                <p className='max-md:hidden'>{item.title}</p>
                 </Link>
               </div>
             )
@@ -95,7 +103,7 @@ const EcommerceSidebar = () => {
 
                   {/* SEARCH */}
           <button
-            className='hover:bg-slate-700 rounded-lg w-full text-left'
+            className='hover:bg-slate-700 rounded-lg w-full text-left '
             onClick={toggleSearch}
           >
 
@@ -103,7 +111,7 @@ const EcommerceSidebar = () => {
 
               <Search />
 
-              <p>Search</p>
+              <p className='max-md:hidden'>Search</p>
 
             </div>
 
@@ -118,7 +126,7 @@ const EcommerceSidebar = () => {
 
             <Plus />
 
-            <p>Upload</p>
+            <p className='max-md:hidden'>Upload</p>
 
           </button>
         
@@ -132,7 +140,7 @@ const EcommerceSidebar = () => {
 
               <User2Icon />
 
-              <p>Profile</p>
+              <p className='max-md:hidden'>Profile</p>
 
             </Link>
 
