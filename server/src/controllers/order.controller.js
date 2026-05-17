@@ -8,6 +8,7 @@ export const placeOrder = asyncHandler(async(req,res,next) => {
  const {items, shippingAddress } = req.body;
  const userId = req.user.id;
  
+ 
  let calculatedTotal = 0;
  const orderItems = [];
 
@@ -21,7 +22,7 @@ for(const item of items) {
       message: `Product ${item.name} is out of stock`
     })
   }
-
+console.log("PRODUCT SELLER", product.sellerId);
 
   calculatedTotal += variant.price * item.quantity;
   orderItems.push({
@@ -84,6 +85,18 @@ export const getSellerOrders = asyncHandler(async(req,res,next) => {
   const query = {"items.sellerId" : sellerId};
 
   if(cursor) query.createdAt = { $lt : new Date(cursor) }
+  if(status) query.status = status;
+
+console.log("Querying for sellerId:", sellerId, typeof sellerId);
+
+// Also log what's actually stored in a sample order
+const sampleOrder = await Order.findOne({}).lean();
+console.log("Sample item sellerId:", sampleOrder?.items?.[0]?.sellerId, typeof sampleOrder?.items?.[0]?.sellerId);
+
+
+// In getSellerOrders or a temp debug route
+const myProducts = await Product.find({ sellerId: req.user.id }).lean();
+console.log("My products count:", myProducts.length);
 
   const orders = await Order.find(query)
   .limit(Number(limit))
@@ -93,6 +106,8 @@ export const getSellerOrders = asyncHandler(async(req,res,next) => {
   const sellerView = orders.map((order) => {
     const myItems = order.items.filter(item => item.sellerId === sellerId);
     const mySubtotal = myItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+
+
 
     return ({
       _id: order._id,

@@ -48,13 +48,14 @@ import { fetchSellerOrders } from '../../../store/slices/seller.slice';
 
   const StatCard = React.memo(({title, icon:Icon, value}) => {
     return (
-        <div className='black-card max-sm:flex    max-sm:items-cenmax-sm:justify-between' >
+        <div className='black-card max-sm:flex  max-sm:items-center max-sm:justify-between' >
         <div className='flex items-center gap-2'>
+          
          <Icon />
          <h4 className='font-semibold'>{title}</h4>
         </div>
         <div className='font-bold text-xl'>
-          {value}
+          {value ?? 0} 
         </div>
       </div>
     )
@@ -86,6 +87,7 @@ const ManageOrders = () => {
 
   useEffect(()=> { 
     dispatch(fetchSellerOrders({ status: null, cursor: null}))
+    // console.log('seller orders running');
   },[dispatch]);
 
   // Single pass over orders to build all 6 counts at once
@@ -137,9 +139,9 @@ const ManageOrders = () => {
     
         
           {
-            STATUS_STATS.map((stat) =>(
-              <StatCard key={stat.title} title={stat.title} value={stat.value} icon={stat.icon} />
-            ))
+            STATUS_STATS.map((stat) => (
+  <StatCard key={stat.title} title={stat.title} value={statCounts[stat.status]} icon={stat.icon} />
+))
           }
        
 

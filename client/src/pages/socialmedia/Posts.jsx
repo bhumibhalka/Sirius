@@ -53,7 +53,7 @@ console.log('LOADING:', loading);
 
       <EcommerceSidebar  />
       
-    <div className='grid lg:grid-cols-5 grid-cols-3 flex-1 ml-97 max-sm:ml-0'>
+    <div className='grid lg:grid-cols-5 grid-cols-3 flex-1 md:ml-97 max-sm:ml-0'>
      {
       homeFeedPosts?.length > 0 ? (
         homeFeedPosts.map(post => (
