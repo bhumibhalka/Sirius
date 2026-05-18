@@ -25,7 +25,7 @@ export const connectDB = async() => {
 //   }
 //  )
 
-const sequelize = new Sequelize(ENV.DATABASE_URL, {
+export const sequelize = new Sequelize(ENV.DATABASE_URL, {
   dialect: "postgres",
   logging: false,
   dialectOptions: {
