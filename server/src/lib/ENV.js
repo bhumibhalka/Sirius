@@ -2,7 +2,7 @@ import "dotenv/config";
 
 export const ENV = {
   PORT: process.env.PORT || 5001,
-  FRONTEND_URL: process.env.FRONTEND_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL ,
   TOKEN_SECRET: process.env.TOKEN_SECRET,
   NODE_ENV: process.env.NODE_ENV,
   MONGO_URI: process.env.MONGO_URI,

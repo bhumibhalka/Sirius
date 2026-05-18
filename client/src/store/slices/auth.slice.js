@@ -50,7 +50,7 @@ export const getUser = createAsyncThunk('getUser', async(_, thunkAPI)=> {
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    loading: false,
+    loading: true,
     user: null ,
     userProfile: null,
     isAuthenticated: false,

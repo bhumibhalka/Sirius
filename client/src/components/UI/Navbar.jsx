@@ -57,7 +57,7 @@ const Navbar = () => {
   },[dispatch])
  
   return (
-    <header className='flex  relative z-10 items-center justify-center mx-6 md:mx-10 ' >
+    <header className='flex  relative z-50 items-center justify-center mx-6 md:mx-10 ' >
 
       <div className='flex items-center justify-between h-14 w-full max-w-6xl '>
       <div className='max-sm:hidden'>

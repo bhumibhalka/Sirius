@@ -18,8 +18,10 @@ export const connectDB = async() => {
   ENV.PG_USER,
   ENV.PG_PASSWORD,
   {
-    host: "localhost",
+    host: ENV.PG_HOST,
+    port: ENV.PG_PORT,
     dialect: "postgres",
+    dialectOptions: {require: true, rejectUnauthorized: false}
   }
  )
 
