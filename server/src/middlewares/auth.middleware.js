@@ -5,7 +5,8 @@ import User from '../models/user.js';
 import { asyncHandler } from './asyncHandler.middleware.js';
 
 export const isAuthenticated = async(req,res,next) => {
-  const token = req.cookies.token;
+  const token = req.cookies.token 
+    || req.headers.authorization?.split(' ')[1];  ;
   if(!token){
     return next(new ErrorHandler('Unauthorized: Please login to continue',401))
   }
