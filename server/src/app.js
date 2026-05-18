@@ -22,7 +22,7 @@ import { handleStripeWebhook } from "./controllers/payment.controller.js";
 
 const app = express();
 app.use(cors({
-  origin: [ENV.FRONTEND_URL, "shopconnect-psi.vercel.app"],
+  origin: [ENV.FRONTEND_URL, "https://shopconnect-psi.vercel.app"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
 }))
