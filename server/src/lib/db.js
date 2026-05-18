@@ -13,17 +13,28 @@ export const connectDB = async() => {
   }
 }
 
- export const sequelize = new Sequelize(
-  ENV.PG_NAME,
-  ENV.PG_USER,
-  ENV.PG_PASSWORD,
-  {
-    host: ENV.PG_HOST,
-    port: ENV.PG_PORT,
-    dialect: "postgres",
-    dialectOptions: {require: true, rejectUnauthorized: false}
-  }
- )
+//  export const sequelize = new Sequelize(
+//   ENV.PG_NAME,
+//   ENV.PG_USER,
+//   ENV.PG_PASSWORD,
+//   {
+//     host: ENV.PG_HOST,
+//     port:Number (ENV.PG_PORT),
+//     dialect: "postgres",
+//     dialectOptions: {require: true, rejectUnauthorized: false}
+//   }
+//  )
+
+const sequelize = new Sequelize(ENV.DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
+});
 
 export const pgConnection = async() => {
 try {
