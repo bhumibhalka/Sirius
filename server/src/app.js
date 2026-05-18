@@ -21,11 +21,16 @@ import { handleStripeWebhook } from "./controllers/payment.controller.js";
 
 
 const app = express();
-app.use(cors({
-  origin: [ENV.FRONTEND_URL, "https://shopconnect-psi.vercel.app"],
+
+const corsOptions = {
+  origin: ENV.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-}))
+}
+
+app.use(cors(corsOptions))
+app.options('*', cors(corsOptions))
 
 app.post('/api/v1/payment/stripe/webhook',
   express.raw({type: "application/json"}),
@@ -41,6 +46,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser())
 
+app.use((req, res, next) => {
+  console.log(`Incoming: ${req.method} ${req.path}`)
+  next()
+})
+
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/cart", cartRoutes);
@@ -54,14 +64,14 @@ app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/follow", followRoutes);
 
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
-app.use(express.static(path.join(__dirname, "client", "dist")));
+// app.use(express.static(path.join(__dirname, "client", "dist")));
 
 
-app.get("/{*splat}", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
-});
+// app.get("/{*splat}", (req, res) => {
+//   res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+// });
 
 app.use(errorMiddleware);
 

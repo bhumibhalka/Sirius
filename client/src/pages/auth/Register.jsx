@@ -46,7 +46,7 @@ const Register = () => {
       console.log(error);
     }
     //  navigate('/')
-  },[dispatch])
+  },[dispatch, formData])
 
   useEffect(()=> {
     if(!user) return;

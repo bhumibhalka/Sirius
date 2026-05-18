@@ -7,10 +7,11 @@ import ErrorHandler from "../middlewares/error.middleware.js";
 import User from "../models/user.js";
 
 export const register = async(req,res,next) => {
+    console.log("REGISTER BODY:", JSON.stringify(req.body)) // 👈 add this
   const {username, email, password, displayName, role} = req.body;
 
 // 1. Start a Managed Transaction in PostgreSQL
-  const t = await sequelize.transaction();
+  let t = await sequelize.transaction();
 
   try {
     const exisitingUser = await User.findOne({ where: {email}, transaction: t})

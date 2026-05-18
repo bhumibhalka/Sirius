@@ -81,8 +81,7 @@ const productSchema = new mongoose.Schema({
   toJSON: {virtuals: true},
 })
 
-productSchema.index({title: 'text'})
-productSchema.index({description: 'text'})
+productSchema.index({title: 'text', description: 'text'})
 productSchema.index({createdAt: -1})
 
 // productSchema.pre('save', function () {
