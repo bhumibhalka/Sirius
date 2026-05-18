@@ -1,25 +1,24 @@
 class ErrorHandler extends Error {
-  constructor(message,statusCode){
+  constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
-
-     Error.captureStackTrace(this, this.constructor);
   }
 }
 
-export const errorMiddleware = (err,req,res,next) => {
-  const message = err.message || "Something went wrong";
-
+export const errorMiddleware = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
 
-  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-  res.header("Access-Control-Allow-Credentials", "true");
-  
-  res.status(statusCode).json({
-    success: true,
+  // ✅ Use request origin instead of env var — no invalid char issues
+  if (req.headers.origin) {
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
+
+  return res.status(statusCode).json({
+    success: false,
     message,
-  })
-
-}
+  });
+};
 
 export default ErrorHandler;
