@@ -30,7 +30,7 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions))
-app.options('*', cors(corsOptions))
+app.options('/{*splat}', cors(corsOptions))
 
 app.post('/api/v1/payment/stripe/webhook',
   express.raw({type: "application/json"}),
