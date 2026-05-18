@@ -47,8 +47,8 @@ export const register = async(req,res,next) => {
 
  return res.status(201).cookie('token',token, {
   httpOnly: true,
-  sameSite: 'strict',
-  secure: ENV.NODE_ENV === "production"
+  sameSite: 'none',
+  secure: true,
  }).json({
   success: true,
   token,
@@ -94,8 +94,8 @@ export const login = async(req,res,next) => {
 
   return res.status(200).cookie('token', token, {
     httpOnly: true,
-    sameSite: 'strict',
-    secure: ENV.NODE_ENV === "production"
+    sameSite: 'none',
+    secure: true,
   }).json({
     success: true,
     message: 'User logged in successfully',
@@ -115,8 +115,8 @@ export const login = async(req,res,next) => {
 export const logout = asyncHandler(async(req, res, next) => {
   return res.status(200).cookie('token', null, {
     httpOnly: true,
-    sameSite: 'strict',
-    secure: ENV.NODE_ENV === "production"
+    sameSite: 'none',
+    secure: true,
   })
   .json({
     success: true,
