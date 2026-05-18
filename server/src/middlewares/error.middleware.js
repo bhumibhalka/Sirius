@@ -12,6 +12,9 @@ export const errorMiddleware = (err,req,res,next) => {
 
   const statusCode = err.statusCode || 500;
 
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+  res.header("Access-Control-Allow-Credentials", "true");
+  
   res.status(statusCode).json({
     success: true,
     message,

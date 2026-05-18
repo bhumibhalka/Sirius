@@ -21,7 +21,7 @@ import { handleStripeWebhook } from "./controllers/payment.controller.js";
 
 
 const app = express();
-
+console.log('FRONTEND URL:', ENV.FRONTEND_URL);
 const corsOptions = {
   origin: ENV.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
