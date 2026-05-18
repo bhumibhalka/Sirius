@@ -51,7 +51,7 @@ const getHomeRoute = (role) => ROLE_HOME[role] ?? '/'
 
 const ProtectedRoute = memo(({children, allowedRoles, user}) => {
   if(!user){
-    return <Navigate to={'login'} replace /> 
+    return <Navigate to={'/login'} replace /> 
   }
 
   if(allowedRoles?.length && user?.role && !allowedRoles.includes(user.role)){

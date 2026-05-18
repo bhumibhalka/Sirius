@@ -19,9 +19,10 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 import { handleStripeWebhook } from "./controllers/payment.controller.js";
 
+
 const app = express();
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [ENV.FRONTEND_URL],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
 }))
@@ -55,11 +56,13 @@ app.use("/api/v1/follow", followRoutes);
 
 const __dirname = path.resolve();
 
-app.use(express.static(path.join(__dirname, "/client/dist")))
+app.use(express.static(path.join(__dirname, "client", "dist")));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "/frontend/dist/index.html"));
+
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
+
 app.use(errorMiddleware);
 
 export default app;
