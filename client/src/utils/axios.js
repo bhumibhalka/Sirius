@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL: "https://sirius-g2po.onrender.com/api/v1",
   withCredentials: true
 })
 
